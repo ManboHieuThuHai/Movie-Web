@@ -20,6 +20,83 @@ body {
   font-family: var(--font-montserrat), sans-serif;
 }
 
+body {
+  scrollbar-color: rgb(255 255 255 / 0.3) transparent;
+  scrollbar-width: thin;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.3);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 0.55);
+}
+
+.site-shell {
+  width: min(calc(100% - 2rem), 90rem);
+  margin-inline: auto;
+}
+
+.movie-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.movie-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.movie-rail__item {
+  flex: 0 0 calc((100% - 1rem) / 2);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .movie-rail__item {
+    flex-basis: calc((100% - 2rem) / 3);
+  }
+}
+
+@media (min-width: 768px) {
+  .movie-rail__item {
+    flex-basis: calc((100% - 3rem) / 4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .movie-rail__item {
+    flex-basis: calc((100% - 5rem) / 6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .movie-rail {
+    scroll-behavior: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-shell {
+    width: min(calc(100% - 6rem), 90rem);
+  }
+}
+
 .font-heading {
   font-family: var(--font-bebas-neue), sans-serif;
 }

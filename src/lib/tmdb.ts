@@ -1,10 +1,10 @@
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-const TMDB_API_KEY_ENV = "NEXT_PUBLIC_TMDB_API_KEY";
+const TMDB_API_KEY_ENV = "TMDB_API_READ_TOKEN";
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
 export type TmdbImageSize = "w185" | "w500" | "original";
 
-type TmdbMovie = {
+export type TmdbMovie = {
   id: number;
   title: string;
   original_title: string;
@@ -79,6 +79,22 @@ type TmdbMovieDetails = TmdbMovie & {
   similar: TmdbMovieList;
 };
 
+type TmdbTvDetailsResponse = Omit<
+  TmdbMovieDetails,
+  "title" | "original_title" | "release_date"
+> & {
+  name: string;
+  original_name: string;
+  first_air_date: string;
+  number_of_seasons: number;
+  number_of_episodes: number;
+};
+
+export type TmdbTvDetails = TmdbMovieDetails & {
+  number_of_seasons: number;
+  number_of_episodes: number;
+};
+
 type TmdbRequestParams = Record<string, string | number | undefined>;
 
 export function getTmdbImageUrl(
@@ -89,7 +105,7 @@ export function getTmdbImageUrl(
 }
 
 function getApiToken() {
-  const token = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  const token = process.env.TMDB_API_READ_TOKEN;
 
   if (!token) {
     throw new Error(`Missing ${TMDB_API_KEY_ENV} environment variable.`);
@@ -102,7 +118,14 @@ async function fetchTmdb<T>(
   path: string,
   params: TmdbRequestParams = {},
 ): Promise<T> {
-  const url = new URL(`${TMDB_BASE_URL}${path}`);
+  const isBrowser = typeof window !== "undefined";
+  const url = isBrowser
+    ? new URL("/api/tmdb", window.location.origin)
+    : new URL(`${TMDB_BASE_URL}${path}`);
+
+  if (isBrowser) {
+    url.searchParams.set("path", path);
+  }
 
   Object.entries({ language: "en-US", ...params }).forEach(
     ([key, value]) => {
@@ -113,10 +136,12 @@ async function fetchTmdb<T>(
   );
 
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${getApiToken()}`,
-    },
+    headers: isBrowser
+      ? { Accept: "application/json" }
+      : {
+          Accept: "application/json",
+          Authorization: `Bearer ${getApiToken()}`,
+        },
     cache: "no-store",
   });
 
@@ -150,16 +175,18 @@ export function searchMovies(query: string, page = 1) {
 }
 
 export type TmdbCatalogCategory = "movie" | "tv";
+export type TmdbCatalogSort = "popular" | "top_rated";
 
 export async function getCatalogPage(
   category: TmdbCatalogCategory,
   page = 1,
   query = "",
+  sort: TmdbCatalogSort = "popular",
 ): Promise<TmdbMovieList> {
   const normalizedQuery = query.trim();
   const path = normalizedQuery
     ? `/search/${category}`
-    : `/${category}/popular`;
+    : `/${category}/${sort}`;
   const response = await fetchTmdb<TmdbCatalogResponse>(path, {
     page,
     ...(normalizedQuery ? { query: normalizedQuery, include_adult: "false" } : {}),
@@ -182,9 +209,21 @@ export function getMovieDetails(movieId: number | string) {
   });
 }
 
+export async function getTvDetails(tvId: number | string) {
+  const response = await fetchTmdb<TmdbTvDetailsResponse>(`/tv/${tvId}`, {
+    append_to_response: "videos,credits,similar",
+  });
+
+  return {
+    ...response,
+    title: response.name,
+    original_title: response.original_name,
+    release_date: response.first_air_date,
+  } satisfies TmdbTvDetails;
+}
+
 export type {
   TmdbCredits,
-  TmdbMovie,
   TmdbMovieDetails,
   TmdbMovieList,
   TmdbVideo,

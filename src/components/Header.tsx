@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "Home", href: "/#home" },
-  { label: "Movies", href: "/#movies" },
-  { label: "TV Series", href: "/#tv-series" },
+  { label: "Home", href: "/", match: "/" },
+  { label: "Movies", href: "/movie", match: "/movie" },
+  { label: "TV Series", href: "/tv", match: "/tv" },
 ];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,25 +35,38 @@ export default function Header() {
     >
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10"
+        className="site-shell flex h-20 items-center justify-between"
       >
         <Link
-          href="/#home"
-          className="font-heading text-3xl uppercase tracking-wide text-white transition-opacity hover:opacity-80"
+          href="/"
+          className="flex items-center gap-3 font-heading text-3xl uppercase tracking-wide text-white transition-opacity hover:opacity-80"
         >
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold">
+            H
+          </span>
           the<span className="text-primary">Movies</span>
         </Link>
 
         <div className="flex items-center gap-6 text-sm font-semibold text-white/80 sm:gap-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="transition-colors hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              item.match === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.match);
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`border-b-2 py-2 transition-colors hover:text-white ${
+                  isActive ? "border-primary text-white" : "border-transparent"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </header>

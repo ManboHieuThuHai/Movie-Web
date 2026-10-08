@@ -2,12 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
-import { getTmdbImageUrl, type TmdbMovie } from "@/src/lib/tmdb";
+import {
+  getMovieDetails,
+  getTmdbImageUrl,
+  getTvDetails,
+  type TmdbCatalogCategory,
+  type TmdbMovie,
+} from "@/src/lib/tmdb";
+import { useUIStore } from "@/src/store/useUIStore";
 
 type MovieCardProps = {
   movie: TmdbMovie;
   onPlay?: (movie: TmdbMovie) => void;
+  mediaType?: TmdbCatalogCategory;
 };
 
 function PlayIcon() {
@@ -19,26 +28,58 @@ function PlayIcon() {
   );
 }
 
-export default function MovieCard({ movie, onPlay }: MovieCardProps) {
+export default function MovieCard({
+  movie,
+  onPlay,
+  mediaType = "movie",
+}: MovieCardProps) {
   const posterUrl = getTmdbImageUrl(movie.poster_path);
 
-  const playControl = onPlay ? (
+  const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
+  const openTrailer = useUIStore((state) => state.openTrailer);
+
+  const handlePlay = async () => {
+    if (onPlay) {
+      onPlay(movie);
+      return;
+    }
+
+    setIsLoadingTrailer(true);
+    try {
+      const details =
+        mediaType === "tv"
+          ? await getTvDetails(movie.id)
+          : await getMovieDetails(movie.id);
+      const video = details.videos.results.find(
+        (candidate) =>
+          candidate.site === "YouTube" &&
+          (candidate.type === "Trailer" || candidate.type === "Teaser"),
+      );
+
+      if (video) {
+        openTrailer(video.key);
+      }
+    } catch {
+      return;
+    } finally {
+      setIsLoadingTrailer(false);
+    }
+  };
+
+  const playControl = (
     <button
       type="button"
       aria-label={`Play ${movie.title}`}
-      className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white opacity-0 shadow-lg shadow-primary/40 transition-all duration-300 hover:scale-110 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-      onClick={() => onPlay(movie)}
+      disabled={isLoadingTrailer}
+      className="absolute left-1/2 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white opacity-0 shadow-lg shadow-primary/40 transition-all duration-300 hover:scale-110 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        void handlePlay();
+      }}
     >
       <PlayIcon />
     </button>
-  ) : (
-    <Link
-      href={`/movie/${movie.id}`}
-      aria-label={`Open ${movie.title}`}
-      className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white opacity-0 shadow-lg shadow-primary/40 transition-all duration-300 hover:scale-110 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    >
-      <PlayIcon />
-    </Link>
   );
 
   return (
@@ -56,6 +97,12 @@ export default function MovieCard({ movie, onPlay }: MovieCardProps) {
           No poster available
         </div>
       )}
+
+      <Link
+        href={`/${mediaType}/${movie.id}`}
+        aria-label={`Open ${movie.title}`}
+        className="absolute inset-0 z-[1]"
+      />
 
       <div className="absolute inset-0 bg-black/45 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       {playControl}

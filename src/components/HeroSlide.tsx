@@ -4,7 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { getTmdbImageUrl, type TmdbMovie } from "@/src/lib/tmdb";
+import {
+  getMovieDetails,
+  getTmdbImageUrl,
+  type TmdbMovie,
+} from "@/src/lib/tmdb";
+import { useUIStore } from "@/src/store/useUIStore";
 
 type HeroSlideProps = {
   movies: TmdbMovie[];
@@ -18,6 +23,8 @@ export default function HeroSlide({
   onWatchTrailer,
 }: HeroSlideProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
+  const openTrailer = useUIStore((state) => state.openTrailer);
   const safeIndex = movies.length > 0 ? activeIndex % movies.length : 0;
   const activeMovie = movies[safeIndex];
   const backdropUrl = activeMovie
@@ -26,6 +33,31 @@ export default function HeroSlide({
   const posterUrl = activeMovie
     ? getTmdbImageUrl(activeMovie.poster_path)
     : null;
+
+  const handleWatchTrailer = async () => {
+    if (onWatchTrailer) {
+      onWatchTrailer(activeMovie);
+      return;
+    }
+
+    setIsLoadingTrailer(true);
+    try {
+      const details = await getMovieDetails(activeMovie.id);
+      const video = details.videos.results.find(
+        (candidate) =>
+          candidate.site === "YouTube" &&
+          (candidate.type === "Trailer" || candidate.type === "Teaser"),
+      );
+
+      if (video) {
+        openTrailer(video.key);
+      }
+    } catch {
+      return;
+    } finally {
+      setIsLoadingTrailer(false);
+    }
+  };
 
   useEffect(() => {
     if (movies.length <= 1) {
@@ -62,7 +94,7 @@ export default function HeroSlide({
       <div className="absolute inset-0 -z-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
       <div className="absolute inset-x-0 bottom-0 -z-0 h-48 bg-gradient-to-t from-background to-transparent" />
 
-      <div className="relative z-10 mx-auto flex min-h-[620px] max-w-7xl items-center px-6 pb-20 pt-32 lg:px-10">
+      <div className="site-shell relative z-10 flex min-h-[620px] items-center pb-20 pt-32">
         <div className="max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-primary">
             Popular movie
@@ -90,22 +122,14 @@ export default function HeroSlide({
                 Watch now
               </Link>
             )}
-            {onWatchTrailer ? (
-              <button
-                type="button"
-                className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-                onClick={() => onWatchTrailer(activeMovie)}
-              >
-                Watch trailer
-              </button>
-            ) : (
-              <Link
-                href={`/movie/${activeMovie.id}#trailers`}
-                className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-              >
-                Watch trailer
-              </Link>
-            )}
+            <button
+              type="button"
+              disabled={isLoadingTrailer}
+              className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-60"
+              onClick={() => void handleWatchTrailer()}
+            >
+              {isLoadingTrailer ? "Loading..." : "Watch trailer"}
+            </button>
           </div>
         </div>
 
@@ -122,22 +146,6 @@ export default function HeroSlide({
         )}
       </div>
 
-      {movies.length > 1 && (
-        <div className="absolute bottom-8 left-6 z-10 flex gap-2 lg:left-10">
-          {movies.map((movie, index) => (
-            <button
-              key={movie.id}
-              type="button"
-              aria-label={`Show ${movie.title}`}
-              aria-current={index === safeIndex}
-              className={`h-1.5 rounded-full transition-all ${
-                index === safeIndex ? "w-8 bg-primary" : "w-2 bg-white/40"
-              }`}
-              onClick={() => setActiveIndex(index)}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Montserrat } from "next/font/google";
 import Header from "@/src/components/Header";
+import Footer from "@/src/components/Footer";
 import TrailerModal from "@/src/components/TrailerModal";
 import QueryProvider from "@/src/providers/QueryProvider";
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Header />
           {children}
           <TrailerModal />
+          <Footer />
         </QueryProvider>
       </body>
     </html>
