@@ -67,9 +67,19 @@ body::-webkit-scrollbar-thumb:hover {
   scroll-snap-align: start;
 }
 
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 @media (min-width: 640px) {
   .movie-rail__item {
     flex-basis: calc((100% - 2rem) / 3);
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -77,11 +87,19 @@ body::-webkit-scrollbar-thumb:hover {
   .movie-rail__item {
     flex-basis: calc((100% - 3rem) / 4);
   }
+
+  .movie-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1024px) {
   .movie-rail__item {
     flex-basis: calc((100% - 5rem) / 6);
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 

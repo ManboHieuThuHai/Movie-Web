@@ -17,6 +17,8 @@ type CatalogProps = {
   heading?: string;
   showSearch?: boolean;
   showHeader?: boolean;
+  showLoadMore?: boolean;
+  autoAdvance?: boolean;
   onPlay?: (movie: TmdbMovie) => void;
 };
 
@@ -26,6 +28,8 @@ export default function Catalog({
   heading,
   showSearch = true,
   showHeader = true,
+  showLoadMore = true,
+  autoAdvance = false,
   onPlay,
 }: CatalogProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -114,10 +118,16 @@ export default function Catalog({
       )}
 
       {uniqueMovies.length > 0 && (
-        <MovieRail movies={uniqueMovies} mediaType={category} onPlay={onPlay} />
+        <MovieRail
+          movies={uniqueMovies}
+          mediaType={category}
+          onPlay={onPlay}
+          autoAdvance={autoAdvance}
+          layout={autoAdvance ? "rail" : "grid"}
+        />
       )}
 
-      {catalogQuery.hasNextPage && (
+      {showLoadMore && catalogQuery.hasNextPage && (
         <div className="mt-10 flex justify-center">
           <button
             type="button"

@@ -28,8 +28,9 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
   const trailers = media.videos.results.filter(
     (video) =>
       video.site === "YouTube" &&
+      Boolean(video.key) &&
       (video.type === "Trailer" || video.type === "Teaser"),
-  );
+  ).slice(0, 5);
   const cast = media.credits.cast.slice(0, 12).map((actor) => ({
     ...actor,
     profileUrl: getTmdbImageUrl(actor.profile_path, "w185"),
@@ -173,8 +174,9 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
               Similar {isTv ? "series" : "movies"}
             </h2>
             <MovieRail
-              movies={media.similar.results.slice(0, 5)}
+              movies={media.similar.results}
               mediaType={mediaType}
+              autoAdvance
             />
           </section>
         )}

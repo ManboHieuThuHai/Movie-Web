@@ -50,6 +50,8 @@ function CatalogSection({
         heading={heading}
         showSearch={false}
         showHeader={false}
+        showLoadMore={false}
+        autoAdvance
       />
     </section>
   );

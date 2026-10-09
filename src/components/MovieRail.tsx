@@ -10,6 +10,7 @@ type MovieRailProps = {
   mediaType: TmdbCatalogCategory;
   onPlay?: (movie: TmdbMovie) => void;
   autoAdvance?: boolean;
+  layout?: "rail" | "grid";
 };
 
 export default function MovieRail({
@@ -17,12 +18,14 @@ export default function MovieRail({
   mediaType,
   onPlay,
   autoAdvance = true,
+  layout = "rail",
 }: MovieRailProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const isGrid = layout === "grid";
 
   useEffect(() => {
-    if (!autoAdvance || movies.length < 2 || isPaused) {
+    if (isGrid || !autoAdvance || movies.length < 2 || isPaused) {
       return;
     }
 
@@ -45,12 +48,12 @@ export default function MovieRail({
     }, 7000);
 
     return () => window.clearInterval(interval);
-  }, [autoAdvance, isPaused, movies.length]);
+  }, [autoAdvance, isGrid, isPaused, movies.length]);
 
   return (
     <div
       ref={railRef}
-      className="movie-rail"
+      className={isGrid ? "movie-grid" : "movie-rail"}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
