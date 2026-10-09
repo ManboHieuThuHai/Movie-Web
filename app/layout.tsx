@@ -4,6 +4,9 @@ import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import TrailerModal from "@/src/components/TrailerModal";
 import QueryProvider from "@/src/providers/QueryProvider";
+import { cookies } from "next/headers";
+import { defaultLocale, isLocale, type Locale } from "@/src/i18n/config";
+import { LocaleProvider } from "@/src/i18n/LocaleProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -22,18 +25,25 @@ export const metadata: Metadata = {
   description: "Discover movies and TV series.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("locale")?.value;
+  const locale: Locale = cookieLocale && isLocale(cookieLocale) ? cookieLocale : defaultLocale;
   return (
     <html
-      lang="en"
-      className={`${montserrat.variable} ${bebasNeue.variable} h-full antialiased`}
+      lang={locale}
+      className="h-full antialiased"
     >
-      <body className="flex min-h-full flex-col">
+      <body
+        className={`${montserrat.variable} ${bebasNeue.variable} flex min-h-full flex-col`}
+      >
         <QueryProvider>
-          <Header />
-          {children}
-          <TrailerModal />
-          <Footer />
+          <LocaleProvider locale={locale}>
+            <Header />
+            {children}
+            <TrailerModal />
+            <Footer />
+          </LocaleProvider>
         </QueryProvider>
       </body>
     </html>

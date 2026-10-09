@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "@/src/i18n/LocaleProvider";
 
 const footerPosters = [
   "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
@@ -11,13 +14,13 @@ const footerPosters = [
   "/vQ3kzWk7m2Z8e6n1P4s5d0f9gH.jpg",
 ];
 
-const footerColumns = [
-  ["Home", "Live", "You must watch"],
-  ["Contact us", "FAQ", "Recent release"],
-  ["Term of services", "Premium", "Top IMDB", "About us", "Privacy policy"],
-];
-
 export default function Footer() {
+  const { locale, messages } = useLocale();
+  const footerColumns = [
+    [messages.home, messages.live, messages.mustWatch],
+    [messages.contactUs, messages.faq, messages.recentRelease],
+    [messages.terms, messages.premium, messages.topImdb, messages.aboutUs, messages.privacy],
+  ];
   return (
     <footer className="relative isolate min-h-[380px] overflow-hidden border-t border-white/10 bg-black px-6 py-14 text-white lg:px-10">
       <div className="absolute inset-0 -z-10 grid grid-cols-2 opacity-25 sm:grid-cols-4">
@@ -33,7 +36,7 @@ export default function Footer() {
       </div>
       <div className="absolute inset-0 -z-10 bg-black/80" />
       <div className="site-shell relative">
-        <Link href="/" className="mx-auto flex w-fit items-center gap-3 text-white">
+        <Link href={`/${locale}`} className="mx-auto flex w-fit items-center gap-3 text-white">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold">
             H
           </span>

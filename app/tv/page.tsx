@@ -1,19 +1,10 @@
-import Catalog from "@/src/components/Catalog";
+import { redirect } from "next/navigation";
 
-type TvPageProps = {
+export default async function TvCatalogRedirect({
+  searchParams,
+}: {
   searchParams: Promise<{ type?: string }>;
-};
-
-export default async function TvCatalogPage({ searchParams }: TvPageProps) {
+}) {
   const { type } = await searchParams;
-  const sort = type === "top_rated" ? "top_rated" : "popular";
-
-  return (
-    <main className="min-h-screen bg-background pb-12 pt-28 text-foreground">
-      <section className="site-shell pb-4">
-        <h1 className="font-heading text-7xl uppercase text-white">TV Series</h1>
-      </section>
-      <Catalog category="tv" sort={sort} />
-    </main>
-  );
+  redirect(`/en/tv${type ? `?type=${encodeURIComponent(type)}` : ""}`);
 }

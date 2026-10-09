@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import MovieCard from "@/src/components/MovieCard";
 import type { TmdbCatalogCategory, TmdbMovie } from "@/src/lib/tmdb";
+import type { Locale } from "@/src/i18n/config";
 
 type MovieRailProps = {
   movies: TmdbMovie[];
@@ -11,6 +12,7 @@ type MovieRailProps = {
   onPlay?: (movie: TmdbMovie) => void;
   autoAdvance?: boolean;
   layout?: "rail" | "grid";
+  locale?: Locale;
 };
 
 export default function MovieRail({
@@ -19,6 +21,7 @@ export default function MovieRail({
   onPlay,
   autoAdvance = true,
   layout = "rail",
+  locale = "en",
 }: MovieRailProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -65,7 +68,7 @@ export default function MovieRail({
     >
       {movies.map((movie) => (
         <div key={`${mediaType}-${movie.id}`} className="movie-rail__item">
-          <MovieCard movie={movie} mediaType={mediaType} onPlay={onPlay} />
+          <MovieCard movie={movie} mediaType={mediaType} onPlay={onPlay} locale={locale} />
         </div>
       ))}
     </div>

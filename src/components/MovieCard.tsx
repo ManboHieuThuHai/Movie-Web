@@ -11,12 +11,14 @@ import {
   type TmdbCatalogCategory,
   type TmdbMovie,
 } from "@/src/lib/tmdb";
+import type { Locale } from "@/src/i18n/config";
 import { useUIStore } from "@/src/store/useUIStore";
 
 type MovieCardProps = {
   movie: TmdbMovie;
   onPlay?: (movie: TmdbMovie) => void;
   mediaType?: TmdbCatalogCategory;
+  locale?: Locale;
 };
 
 function PlayIcon() {
@@ -32,6 +34,7 @@ export default function MovieCard({
   movie,
   onPlay,
   mediaType = "movie",
+  locale = "en",
 }: MovieCardProps) {
   const posterUrl = getTmdbImageUrl(movie.poster_path);
 
@@ -48,8 +51,8 @@ export default function MovieCard({
     try {
       const details =
         mediaType === "tv"
-          ? await getTvDetails(movie.id)
-          : await getMovieDetails(movie.id);
+          ? await getTvDetails(movie.id, locale)
+          : await getMovieDetails(movie.id, locale);
       const video = details.videos.results.find(
         (candidate) =>
           candidate.site === "YouTube" &&
@@ -69,7 +72,7 @@ export default function MovieCard({
   const playControl = (
     <button
       type="button"
-      aria-label={`Play ${movie.title}`}
+      aria-label={`${locale === "vi" ? "Phát" : "Play"} ${movie.title}`}
       disabled={isLoadingTrailer}
       className="absolute left-1/2 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white opacity-0 shadow-lg shadow-primary/40 transition-all duration-300 hover:scale-110 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
       onClick={(event) => {
@@ -99,8 +102,8 @@ export default function MovieCard({
       )}
 
       <Link
-        href={`/${mediaType}/${movie.id}`}
-        aria-label={`Open ${movie.title}`}
+        href={`/${locale}/${mediaType}/${movie.id}`}
+        aria-label={`${locale === "vi" ? "Mở" : "Open"} ${movie.title}`}
         className="absolute inset-0 z-[1]"
       />
 

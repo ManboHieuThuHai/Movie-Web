@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import MovieRail from "@/src/components/MovieRail";
+import { formatDate, formatNumber, getMessages, type Locale } from "@/src/i18n/config";
 import {
   getTmdbImageUrl,
   type TmdbCatalogCategory,
@@ -11,6 +12,7 @@ import {
 type MediaDetailsProps = {
   media: TmdbMovieDetails | TmdbTvDetails;
   mediaType: TmdbCatalogCategory;
+  locale?: Locale;
 };
 
 function formatRuntime(runtime: number | null) {
@@ -23,7 +25,8 @@ function formatRuntime(runtime: number | null) {
   return `${hours}h ${minutes}m`;
 }
 
-export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
+export default function MediaDetails({ media, mediaType, locale = "en" }: MediaDetailsProps) {
+  const messages = getMessages(locale);
   const isTv = mediaType === "tv";
   const trailers = media.videos.results.filter(
     (video) =>
@@ -38,7 +41,7 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
   const backdropUrl = getTmdbImageUrl(media.backdrop_path, "original");
   const posterUrl = getTmdbImageUrl(media.poster_path);
   const runtime = formatRuntime(media.runtime);
-  const year = media.release_date?.slice(0, 4);
+  const releaseDate = media.release_date ? formatDate(media.release_date, locale) : "";
 
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground">
@@ -70,14 +73,14 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
               />
             ) : (
               <div className="flex h-full items-center justify-center p-4 text-center text-white/50">
-                No poster available
+                {messages.noPoster}
               </div>
             )}
           </div>
 
           <div className="self-end pb-2">
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-              {isTv ? "TV series details" : "Movie details"}
+              {isTv ? messages.tvDetails : messages.movieDetails}
             </p>
             <h1 className="font-heading text-6xl uppercase leading-none text-white sm:text-8xl">
               {media.title}
@@ -86,15 +89,14 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
               <p className="mt-4 text-lg italic text-white/70">{media.tagline}</p>
             )}
             <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/65">
-              {year && <span>{year}</span>}
+              {releaseDate && <span>{releaseDate}</span>}
               {runtime && <span>{runtime}</span>}
               {isTv && "number_of_seasons" in media && (
                 <span>
-                  {media.number_of_seasons} season
-                  {media.number_of_seasons === 1 ? "" : "s"}
+                  {media.number_of_seasons} {media.number_of_seasons === 1 ? messages.season : messages.seasons}
                 </span>
               )}
-              <span>{media.vote_average.toFixed(1)} / 10</span>
+              <span>{formatNumber(media.vote_average, locale)} / 10</span>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {media.genres.map((genre) => (
@@ -107,13 +109,13 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
               ))}
             </div>
             <p className="mt-6 max-w-3xl leading-7 text-white/75">
-              {media.overview || "No overview available."}
+              {media.overview || messages.noOverview}
             </p>
           </div>
         </section>
 
         <section className="mt-16">
-          <h2 className="font-heading text-4xl uppercase text-white">Casts</h2>
+          <h2 className="font-heading text-4xl uppercase text-white">{messages.casts}</h2>
           <div className="mt-6 flex gap-5 overflow-x-auto pb-4">
             {cast.map((actor) => (
               <div key={actor.id} className="w-24 shrink-0 text-center">
@@ -128,7 +130,7 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-white/40">
-                      No photo
+                      {messages.noPhoto}
                     </div>
                   )}
                 </div>
@@ -142,7 +144,7 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
         </section>
 
         <section id="trailers" className="mt-16 scroll-mt-24">
-          <h2 className="font-heading text-4xl uppercase text-white">Trailers</h2>
+          <h2 className="font-heading text-4xl uppercase text-white">{messages.trailers}</h2>
           {trailers.length > 0 ? (
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               {trailers.map((video) => (
@@ -164,19 +166,20 @@ export default function MediaDetails({ media, mediaType }: MediaDetailsProps) {
               ))}
             </div>
           ) : (
-            <p className="mt-6 text-white/50">No trailers available.</p>
+            <p className="mt-6 text-white/50">{messages.noTrailers}</p>
           )}
         </section>
 
         {media.similar.results.length > 0 && (
           <section className="mt-16">
             <h2 className="font-heading text-4xl uppercase text-white">
-              Similar {isTv ? "series" : "movies"}
+              {isTv ? messages.similarSeries : messages.similarMovies}
             </h2>
             <MovieRail
               movies={media.similar.results}
               mediaType={mediaType}
               autoAdvance
+              locale={locale}
             />
           </section>
         )}

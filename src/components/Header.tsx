@@ -3,16 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const navItems = [
-  { label: "Home", href: "/", match: "/" },
-  { label: "Movies", href: "/movie", match: "/movie" },
-  { label: "TV Series", href: "/tv", match: "/tv" },
-];
+import { useLocale } from "@/src/i18n/LocaleProvider";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const { locale, messages } = useLocale();
+  const navItems = [
+    { label: messages.home, href: `/${locale}`, match: `/${locale}` },
+    { label: messages.movies, href: `/${locale}/movie`, match: `/${locale}/movie` },
+    { label: messages.tvSeries, href: `/${locale}/tv`, match: `/${locale}/tv` },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,11 +35,11 @@ export default function Header() {
       }`}
     >
       <nav
-        aria-label="Main navigation"
+        aria-label={locale === "vi" ? "Điều hướng chính" : "Main navigation"}
         className="site-shell flex h-20 items-center justify-between"
       >
         <Link
-          href="/"
+          href={`/${locale}`}
           className="flex items-center gap-3 font-heading text-3xl uppercase tracking-wide text-white transition-opacity hover:opacity-80"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold">
@@ -47,11 +48,11 @@ export default function Header() {
           the<span className="text-primary">Movies</span>
         </Link>
 
-        <div className="flex items-center gap-6 text-sm font-semibold text-white/80 sm:gap-8">
+        <div className="flex items-center gap-4 text-sm font-semibold text-white/80 sm:gap-8">
           {navItems.map((item) => {
             const isActive =
-              item.match === "/"
-                ? pathname === "/"
+              item.match === `/${locale}`
+                ? pathname === item.match
                 : pathname.startsWith(item.match);
 
             return (
@@ -59,14 +60,19 @@ export default function Header() {
                 key={item.label}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`border-b-2 py-2 transition-colors hover:text-white ${
-                  isActive ? "border-primary text-white" : "border-transparent"
+                className={`rounded-md px-1 py-2 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-primary ${
+                  isActive ? "text-white" : "text-white/80"
                 }`}
               >
                 {item.label}
               </Link>
             );
           })}
+          <div className="flex items-center gap-2 border-l border-white/15 pl-4" aria-label={messages.language}>
+            <Link href={`/en${pathname.replace(/^\/(en|vi)/, "") || ""}`} className={locale === "en" ? "text-white" : "hover:text-white"}>EN</Link>
+            <span aria-hidden="true">/</span>
+            <Link href={`/vi${pathname.replace(/^\/(en|vi)/, "") || ""}`} className={locale === "vi" ? "text-white" : "hover:text-white"}>VI</Link>
+          </div>
         </div>
       </nav>
     </header>

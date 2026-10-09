@@ -1,6 +1,7 @@
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_API_KEY_ENV = "TMDB_API_READ_TOKEN";
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+import type { Locale } from "@/src/i18n/config";
 
 export type TmdbImageSize = "w185" | "w500" | "original";
 
@@ -117,6 +118,7 @@ function getApiToken() {
 async function fetchTmdb<T>(
   path: string,
   params: TmdbRequestParams = {},
+  locale: Locale = "en",
 ): Promise<T> {
   const isBrowser = typeof window !== "undefined";
   const url = isBrowser
@@ -127,7 +129,7 @@ async function fetchTmdb<T>(
     url.searchParams.set("path", path);
   }
 
-  Object.entries({ language: "en-US", ...params }).forEach(
+  Object.entries({ language: locale === "vi" ? "vi-VN" : "en-US", ...params }).forEach(
     ([key, value]) => {
       if (value !== undefined) {
         url.searchParams.set(key, String(value));
@@ -152,26 +154,27 @@ async function fetchTmdb<T>(
   return response.json() as Promise<T>;
 }
 
-export function getPopular(page = 1) {
-  return fetchTmdb<TmdbMovieList>("/movie/popular", { page });
+export function getPopular(page = 1, locale: Locale = "en") {
+  return fetchTmdb<TmdbMovieList>("/movie/popular", { page }, locale);
 }
 
 export function getTrending(
   timeWindow: "day" | "week" = "week",
+  locale: Locale = "en",
 ) {
-  return fetchTmdb<TmdbMovieList>(`/trending/movie/${timeWindow}`);
+  return fetchTmdb<TmdbMovieList>(`/trending/movie/${timeWindow}`, {}, locale);
 }
 
-export function getTopRated(page = 1) {
-  return fetchTmdb<TmdbMovieList>("/movie/top_rated", { page });
+export function getTopRated(page = 1, locale: Locale = "en") {
+  return fetchTmdb<TmdbMovieList>("/movie/top_rated", { page }, locale);
 }
 
-export function searchMovies(query: string, page = 1) {
+export function searchMovies(query: string, page = 1, locale: Locale = "en") {
   return fetchTmdb<TmdbMovieList>("/search/movie", {
     query,
     page,
     include_adult: "false",
-  });
+  }, locale);
 }
 
 export type TmdbCatalogCategory = "movie" | "tv";
@@ -182,6 +185,7 @@ export async function getCatalogPage(
   page = 1,
   query = "",
   sort: TmdbCatalogSort = "popular",
+  locale: Locale = "en",
 ): Promise<TmdbMovieList> {
   const normalizedQuery = query.trim();
   const path = normalizedQuery
@@ -190,7 +194,7 @@ export async function getCatalogPage(
   const response = await fetchTmdb<TmdbCatalogResponse>(path, {
     page,
     ...(normalizedQuery ? { query: normalizedQuery, include_adult: "false" } : {}),
-  });
+  }, locale);
 
   return {
     ...response,
@@ -203,16 +207,16 @@ export async function getCatalogPage(
   };
 }
 
-export function getMovieDetails(movieId: number | string) {
+export function getMovieDetails(movieId: number | string, locale: Locale = "en") {
   return fetchTmdb<TmdbMovieDetails>(`/movie/${movieId}`, {
     append_to_response: "videos,credits,similar",
-  });
+  }, locale);
 }
 
-export async function getTvDetails(tvId: number | string) {
+export async function getTvDetails(tvId: number | string, locale: Locale = "en") {
   const response = await fetchTmdb<TmdbTvDetailsResponse>(`/tv/${tvId}`, {
     append_to_response: "videos,credits,similar",
-  });
+  }, locale);
 
   return {
     ...response,

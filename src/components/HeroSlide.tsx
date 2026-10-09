@@ -10,17 +10,20 @@ import {
   type TmdbMovie,
 } from "@/src/lib/tmdb";
 import { useUIStore } from "@/src/store/useUIStore";
+import type { Locale } from "@/src/i18n/config";
 
 type HeroSlideProps = {
   movies: TmdbMovie[];
   onWatchNow?: (movie: TmdbMovie) => void;
   onWatchTrailer?: (movie: TmdbMovie) => void;
+  locale?: Locale;
 };
 
 export default function HeroSlide({
   movies,
   onWatchNow,
   onWatchTrailer,
+  locale = "en",
 }: HeroSlideProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
@@ -42,7 +45,7 @@ export default function HeroSlide({
 
     setIsLoadingTrailer(true);
     try {
-      const details = await getMovieDetails(activeMovie.id);
+      const details = await getMovieDetails(activeMovie.id, locale);
       const video = details.videos.results.find(
         (candidate) =>
           candidate.site === "YouTube" &&
@@ -97,7 +100,7 @@ export default function HeroSlide({
       <div className="site-shell relative z-10 flex min-h-[620px] items-center pb-20 pt-32">
         <div className="max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-            Popular movie
+            {locale === "vi" ? "Phim nổi bật" : "Popular movie"}
           </p>
           <h1 className="font-heading text-6xl uppercase leading-none text-white sm:text-8xl">
             {activeMovie.title}
@@ -116,10 +119,10 @@ export default function HeroSlide({
               </button>
             ) : (
               <Link
-                href={`/movie/${activeMovie.id}`}
+                href={`/${locale}/movie/${activeMovie.id}`}
                 className="btn-glow rounded-full bg-primary px-6 py-3 text-sm font-bold text-white"
               >
-                Watch now
+                {locale === "vi" ? "Xem ngay" : "Watch now"}
               </Link>
             )}
             <button
@@ -128,7 +131,9 @@ export default function HeroSlide({
               className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-60"
               onClick={() => void handleWatchTrailer()}
             >
-              {isLoadingTrailer ? "Loading..." : "Watch trailer"}
+              {isLoadingTrailer
+                ? locale === "vi" ? "Đang tải..." : "Loading..."
+                : locale === "vi" ? "Xem trailer" : "Watch trailer"}
             </button>
           </div>
         </div>
