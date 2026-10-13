@@ -11,7 +11,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --font-sans: var(--font-montserrat);
-  --font-heading: var(--font-bebas-neue);
+  --font-heading: var(--font-oswald);
 }
 
 body {
@@ -116,7 +116,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .font-heading {
-  font-family: var(--font-bebas-neue), sans-serif;
+  font-family: var(--font-oswald), sans-serif;
 }
 
 .btn-glow {

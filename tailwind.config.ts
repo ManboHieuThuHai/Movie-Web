@@ -14,7 +14,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-montserrat)"],
-        heading: ["var(--font-bebas-neue)"],
+        heading: ["var(--font-oswald)"],
       },
       boxShadow: {
         glow: "0 0 24px rgb(229 9 20 / 0.45)",

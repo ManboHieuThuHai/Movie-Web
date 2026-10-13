@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Montserrat } from "next/font/google";
+import { Montserrat, Oswald } from "next/font/google";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import TrailerModal from "@/src/components/TrailerModal";
 import QueryProvider from "@/src/providers/QueryProvider";
-import { cookies } from "next/headers";
-import { defaultLocale, isLocale, type Locale } from "@/src/i18n/config";
-import { LocaleProvider } from "@/src/i18n/LocaleProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
 });
 
-const bebasNeue = Bebas_Neue({
-  variable: "--font-bebas-neue",
-  weight: "400",
-  subsets: ["latin"],
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin", "vietnamese"],
 });
 
 export const metadata: Metadata = {
@@ -25,25 +21,18 @@ export const metadata: Metadata = {
   description: "Discover movies and TV series.",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get("locale")?.value;
-  const locale: Locale = cookieLocale && isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang={locale}
-      className="h-full antialiased"
+      lang="en"
+      className={`${montserrat.variable} ${oswald.variable} h-full antialiased`}
     >
-      <body
-        className={`${montserrat.variable} ${bebasNeue.variable} flex min-h-full flex-col`}
-      >
+      <body className="flex min-h-full flex-col">
         <QueryProvider>
-          <LocaleProvider locale={locale}>
-            <Header />
-            {children}
-            <TrailerModal />
-            <Footer />
-          </LocaleProvider>
+          <Header />
+          {children}
+          <TrailerModal />
+          <Footer />
         </QueryProvider>
       </body>
     </html>
