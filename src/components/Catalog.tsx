@@ -11,6 +11,7 @@ import {
 } from "@/src/lib/tmdb";
 import type { Locale } from "@/src/i18n/config";
 import MovieRail from "@/src/components/MovieRail";
+import MovieSkeleton from "@/src/components/MovieSkeleton";
 
 type CatalogProps = {
   category: TmdbCatalogCategory;
@@ -109,7 +110,7 @@ export default function Catalog({
       {searchForm && <div className="mb-8 flex justify-start">{searchForm}</div>}
 
       {catalogQuery.isLoading && (
-        <p className="py-12 text-center text-white/60">{locale === "vi" ? `Đang tải ${title.toLowerCase()}...` : `Loading ${title.toLowerCase()}...`}</p>
+        <MovieSkeleton layout={autoAdvance ? "rail" : "grid"} />
       )}
 
       {catalogQuery.isError && (
