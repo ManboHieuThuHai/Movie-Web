@@ -9,12 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0f0f0f",
-        primary: "#e50914",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        primary: "var(--primary)",
       },
       fontFamily: {
-        sans: ["var(--font-montserrat)"],
-        heading: ["var(--font-oswald)"],
+        sans: ["var(--font-space-grotesk)"],
+        heading: ["var(--font-space-grotesk)"],
       },
       boxShadow: {
         glow: "0 0 24px rgb(229 9 20 / 0.45)",

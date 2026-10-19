@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/src/i18n/LocaleProvider";
 
@@ -16,13 +17,21 @@ const footerPosters = [
 
 export default function Footer() {
   const { locale, messages } = useLocale();
-  const footerColumns = [
-    [messages.home, messages.live, messages.mustWatch],
-    [messages.contactUs, messages.faq, messages.recentRelease],
-    [messages.terms, messages.premium, messages.topImdb, messages.aboutUs, messages.privacy],
+  const footerLinks = [
+    messages.home,
+    messages.live,
+    messages.mustWatch,
+    messages.contactUs,
+    messages.faq,
+    messages.recentRelease,
+    messages.terms,
+    messages.premium,
+    messages.topImdb,
+    messages.aboutUs,
+    messages.privacy,
   ];
   return (
-    <footer className="relative isolate min-h-[380px] overflow-hidden border-t border-white/10 bg-black px-6 py-14 text-white lg:px-10">
+    <footer className="relative isolate h-[25rem] overflow-hidden border-t border-white/10 bg-black px-8 py-12 text-white lg:h-[30rem] md:p-16">
       <div className="absolute inset-0 -z-10 grid grid-cols-2 opacity-25 sm:grid-cols-4">
         {footerPosters.map((posterPath, index) => (
           <div
@@ -35,26 +44,29 @@ export default function Footer() {
         ))}
       </div>
       <div className="absolute inset-0 -z-10 bg-black/80" />
-      <div className="site-shell relative">
+      <div className="relative mx-auto flex h-full max-w-4xl flex-col justify-around">
         <Link href={`/${locale}`} className="mx-auto flex w-fit items-center gap-3 text-white">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold">
-            H
-          </span>
-          <span className="font-heading text-4xl uppercase">
-            the<span className="text-primary">Movies</span>
+          <Image
+            src="/tmovie-55621206.png"
+            alt=""
+            width={48}
+            height={48}
+            className="mr-2 w-8 md:mr-4 md:w-12"
+          />
+          <span className="text-2xl font-semibold md:text-4xl">
+            theMovies
           </span>
         </Link>
-        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-x-8 gap-y-8 text-center sm:grid-cols-3">
-          {footerColumns.map((column) => (
-            <nav key={column[0]} aria-label={`${column[0]} links`} className="flex flex-col gap-4 text-lg font-semibold">
-              {column.map((label) => (
-                <a key={label} href="#" className="transition-colors hover:text-primary">
-                  {label}
-                </a>
-              ))}
-            </nav>
+        <nav
+          aria-label={locale === "vi" ? "Liên kết cuối trang" : "Footer links"}
+          className="-mx-2 flex flex-wrap items-start justify-between text-center text-base font-semibold md:text-2xl"
+        >
+          {footerLinks.map((label) => (
+            <a key={label} href="#" className="footer-item">
+              {label}
+            </a>
           ))}
-        </div>
+        </nav>
       </div>
     </footer>
   );

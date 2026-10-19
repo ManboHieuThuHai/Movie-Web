@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import { Montserrat, Oswald } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import TrailerModal from "@/src/components/TrailerModal";
 import QueryProvider from "@/src/providers/QueryProvider";
+import "swiper/css";
+import "swiper/css/effect-fade";
 import "./globals.css";
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin", "vietnamese"],
-});
-
-const oswald = Oswald({
-  variable: "--font-oswald",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin", "vietnamese"],
 });
 
@@ -25,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} ${oswald.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <QueryProvider>
