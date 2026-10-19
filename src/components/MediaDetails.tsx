@@ -1,7 +1,8 @@
 import Image from "next/image";
 
 import MovieRail from "@/src/components/MovieRail";
-import { formatDate, formatNumber, getMessages, type Locale } from "@/src/i18n/config";
+import TrailerPreview from "@/src/components/TrailerPreview";
+import { getMessages, type Locale } from "@/src/i18n/config";
 import {
   getTmdbImageUrl,
   type TmdbCatalogCategory,
@@ -15,16 +16,6 @@ type MediaDetailsProps = {
   locale?: Locale;
 };
 
-function formatRuntime(runtime: number | null) {
-  if (!runtime) {
-    return null;
-  }
-
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime % 60;
-  return `${hours}h ${minutes}m`;
-}
-
 export default function MediaDetails({ media, mediaType, locale = "en" }: MediaDetailsProps) {
   const messages = getMessages(locale);
   const isTv = mediaType === "tv";
@@ -34,18 +25,18 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
       Boolean(video.key) &&
       (video.type === "Trailer" || video.type === "Teaser"),
   ).slice(0, 5);
-  const cast = media.credits.cast.slice(0, 12).map((actor) => ({
+  const cast = media.credits.cast.slice(0, 5).map((actor) => ({
     ...actor,
-    profileUrl: getTmdbImageUrl(actor.profile_path, "w185"),
+    profileUrl: getTmdbImageUrl(actor.profile_path),
   }));
   const backdropUrl = getTmdbImageUrl(media.backdrop_path, "original");
-  const posterUrl = getTmdbImageUrl(media.poster_path);
-  const runtime = formatRuntime(media.runtime);
-  const releaseDate = media.release_date ? formatDate(media.release_date, locale) : "";
+  const posterUrl = getTmdbImageUrl(
+    media.poster_path || media.backdrop_path,
+  );
 
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground">
-      <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
+      <section className="relative isolate overflow-hidden bg-background px-4 py-12 md:px-8 md:pb-20 md:pt-32 lg:px-16">
         {backdropUrl && (
           <Image
             src={backdropUrl}
@@ -56,123 +47,103 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
             sizes="100vw"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-black/45 to-black/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-black/30" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-background" />
+
+        <div className="relative mx-auto max-w-screen-2xl">
+          <div className="-mx-4 flex max-h-fit items-start">
+            <div className="hidden w-64 px-4 md:block lg:w-96">
+              {posterUrl ? (
+                <Image
+                  src={posterUrl}
+                  alt=""
+                  width={500}
+                  height={750}
+                  className="w-full rounded-3xl"
+                  sizes="(max-width: 1023px) 256px, 384px"
+                />
+              ) : (
+                <div className="aspect-[2/3] w-full rounded-3xl bg-white/10" />
+              )}
+            </div>
+
+            <div className="-my-2 flex flex-1 flex-col justify-between px-4 lg:-my-4">
+              <h1 className="py-2 text-3xl font-bold text-white lg:py-4 md:text-5xl lg:text-7xl">
+                {media.title}
+              </h1>
+
+              <div className="-mx-1 flex flex-wrap items-center py-4">
+                {media.genres.map((genre) => (
+                  <div key={genre.id} className="mb-4 px-1">
+                    <span className="rounded-full border-2 border-white bg-black px-4 py-1 text-xs text-white lg:text-sm">
+                      {genre.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <p className="py-2 text-xs text-white md:py-4 md:text-sm lg:text-base">
+                {media.overview || messages.noOverview}
+              </p>
+
+              <div className="py-2 lg:py-4">
+                <h2 className="text-xl font-medium text-white">{messages.casts}</h2>
+                <div className="-mx-2 mt-1 flex flex-wrap">
+                  {cast.map((actor) => (
+                    <div key={actor.id} className="mb-1 w-28 px-2">
+                      {actor.profileUrl ? (
+                        <Image
+                          src={actor.profileUrl}
+                          alt={actor.name}
+                          width={500}
+                          height={750}
+                          className="w-full rounded-xl"
+                          sizes="112px"
+                        />
+                      ) : (
+                        <div className="flex aspect-[2/3] items-center justify-center rounded-xl bg-white/10 text-xs text-white/40">
+                          {messages.noPhoto}
+                        </div>
+                      )}
+                      <span className="text-xs font-normal text-white md:text-sm">
+                        {actor.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <div className="site-shell relative z-10 -mt-36">
-        <section className="grid gap-8 lg:grid-cols-[260px_1fr]">
-          <div className="relative aspect-[2/3] w-full max-w-[260px] overflow-hidden rounded-lg bg-white/5 shadow-2xl shadow-black/60">
-            {posterUrl ? (
-              <Image
-                src={posterUrl}
-                alt={`${media.title} poster`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 192px, 260px"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center p-4 text-center text-white/50">
-                {messages.noPoster}
-              </div>
-            )}
-          </div>
-
-          <div className="self-end pb-2">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-              {isTv ? messages.tvDetails : messages.movieDetails}
-            </p>
-            <h1 className="font-heading text-6xl uppercase leading-none text-white sm:text-8xl">
-              {media.title}
-            </h1>
-            {media.tagline && (
-              <p className="mt-4 text-lg italic text-white/70">{media.tagline}</p>
-            )}
-            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/65">
-              {releaseDate && <span>{releaseDate}</span>}
-              {runtime && <span>{runtime}</span>}
-              {isTv && "number_of_seasons" in media && (
-                <span>
-                  {media.number_of_seasons} {media.number_of_seasons === 1 ? messages.season : messages.seasons}
-                </span>
-              )}
-              <span>{formatNumber(media.vote_average, locale)} / 10</span>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {media.genres.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="rounded-full border border-white/25 px-3 py-1 text-xs text-white/80"
-                >
-                  {genre.name}
-                </span>
-              ))}
-            </div>
-            <p className="mt-6 max-w-3xl leading-7 text-white/75">
-              {media.overview || messages.noOverview}
-            </p>
-          </div>
-        </section>
-
-        <section className="mt-16">
-          <h2 className="font-heading text-4xl uppercase text-white">{messages.casts}</h2>
-          <div className="mt-6 flex gap-5 overflow-x-auto pb-4">
-            {cast.map((actor) => (
-              <div key={actor.id} className="w-24 shrink-0 text-center">
-                <div className="relative mx-auto h-24 w-24 overflow-hidden rounded-full bg-white/10">
-                  {actor.profileUrl ? (
-                    <Image
-                      src={actor.profileUrl}
-                      alt={actor.name}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-white/40">
-                      {messages.noPhoto}
-                    </div>
-                  )}
-                </div>
-                <p className="mt-3 truncate text-sm font-semibold text-white">
-                  {actor.name}
-                </p>
-                <p className="truncate text-xs text-white/50">{actor.character}</p>
+      <section
+        id="trailers"
+        className="relative mx-auto mt-4 max-w-screen-2xl px-4 md:px-8 lg:px-16"
+      >
+        {trailers.length > 0 ? (
+          <div className="space-y-16">
+            {trailers.map((video) => (
+              <div key={video.id}>
+                <h2 className="mb-4 text-base font-semibold text-white md:text-2xl">
+                  {video.name}
+                </h2>
+                <TrailerPreview
+                  videoKey={video.key}
+                  title={video.name}
+                  watchLabel={messages.watchTrailer}
+                />
               </div>
             ))}
           </div>
-        </section>
-
-        <section id="trailers" className="mt-16 scroll-mt-24">
-          <h2 className="font-heading text-4xl uppercase text-white">{messages.trailers}</h2>
-          {trailers.length > 0 ? (
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              {trailers.map((video) => (
-                <div key={video.id}>
-                  <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-xl shadow-black/30">
-                    <iframe
-                      className="h-full w-full"
-                      src={`https://www.youtube.com/embed/${video.key}`}
-                      title={video.name}
-                      loading="lazy"
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                  <p className="mt-3 truncate text-sm font-semibold text-white/80">
-                    {video.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-6 text-white/50">{messages.noTrailers}</p>
-          )}
-        </section>
+        ) : (
+          <p className="text-white/50">{messages.noTrailers}</p>
+        )}
+      </section>
 
         {media.similar.results.length > 0 && (
-          <section className="mt-16">
-            <h2 className="font-heading text-4xl uppercase text-white">
+          <section className="mx-auto mt-16 max-w-screen-2xl px-4 md:px-8 lg:px-16">
+            <h2 className="text-lg font-medium text-white md:text-2xl">
               {isTv ? messages.similarSeries : messages.similarMovies}
             </h2>
             <MovieRail
@@ -183,7 +154,6 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
             />
           </section>
         )}
-      </div>
     </main>
   );
 }

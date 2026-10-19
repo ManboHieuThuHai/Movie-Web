@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Autoplay, EffectFade } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import {
   getMovieDetails,
@@ -25,27 +27,17 @@ export default function HeroSlide({
   onWatchTrailer,
   locale = "en",
 }: HeroSlideProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const openTrailer = useUIStore((state) => state.openTrailer);
-  const safeIndex = movies.length > 0 ? activeIndex % movies.length : 0;
-  const activeMovie = movies[safeIndex];
-  const backdropUrl = activeMovie
-    ? getTmdbImageUrl(activeMovie.backdrop_path, "original")
-    : null;
-  const posterUrl = activeMovie
-    ? getTmdbImageUrl(activeMovie.poster_path)
-    : null;
 
-  const handleWatchTrailer = async () => {
+  const handleWatchTrailer = async (movie: TmdbMovie) => {
     if (onWatchTrailer) {
-      onWatchTrailer(activeMovie);
+      onWatchTrailer(movie);
       return;
     }
 
-    setIsLoadingTrailer(true);
     try {
-      const details = await getMovieDetails(activeMovie.id, locale);
+      const details = await getMovieDetails(movie.id, locale);
       const video = details.videos.results.find(
         (candidate) =>
           candidate.site === "YouTube" &&
@@ -57,100 +49,130 @@ export default function HeroSlide({
       }
     } catch {
       return;
-    } finally {
-      setIsLoadingTrailer(false);
     }
   };
 
-  useEffect(() => {
-    if (movies.length <= 1) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      setActiveIndex((currentIndex) => (currentIndex + 1) % movies.length);
-    }, 7000);
-
-    return () => window.clearInterval(interval);
-  }, [movies.length]);
-
-  if (!activeMovie) {
+  if (movies.length === 0) {
     return null;
   }
 
   return (
     <section
-      aria-label="Popular movies"
-      className="relative isolate min-h-[620px] overflow-hidden bg-black"
+      aria-label="Featured movies"
+      className="relative isolate h-[25rem] overflow-hidden bg-black md:h-[36rem] lg:h-[52rem]"
     >
-      {backdropUrl && (
-        <Image
-          key={activeMovie.id}
-          src={backdropUrl}
-          alt=""
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
-      )}
-      <div className="absolute inset-0 -z-0 bg-gradient-to-r from-black via-black/85 to-black/30" />
-      <div className="absolute inset-x-0 bottom-0 -z-0 h-48 bg-gradient-to-t from-background to-transparent" />
+      <Swiper
+        modules={[Autoplay, EffectFade]}
+        className="absolute inset-0 z-0 h-full"
+        onAfterInit={() => {
+          requestAnimationFrame(() => setIsInitialized(true));
+        }}
+        effect="fade"
+        fadeEffect={{ crossFade: true }}
+        loop={movies.length > 1}
+        autoplay={
+          movies.length > 1
+            ? { delay: 7000, disableOnInteraction: false }
+            : false
+        }
+        speed={700}
+      >
+        {movies.map((movie) => {
+          const backdropUrl = getTmdbImageUrl(movie.backdrop_path, "original");
+          const posterUrl = getTmdbImageUrl(movie.poster_path);
 
-      <div className="site-shell relative z-10 flex min-h-[620px] items-center pb-20 pt-32">
-        <div className="max-w-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-            {locale === "vi" ? "Phim nổi bật" : "Popular movie"}
-          </p>
-          <h1 className="font-heading text-6xl uppercase leading-none text-white sm:text-8xl">
-            {activeMovie.title}
-          </h1>
-          <p className="mt-6 line-clamp-3 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
-            {activeMovie.overview || "Discover your next favorite movie."}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            {onWatchNow ? (
-              <button
-                type="button"
-                className="btn-glow rounded-full bg-primary px-6 py-3 text-sm font-bold text-white"
-                onClick={() => onWatchNow(activeMovie)}
-              >
-                Watch now
-              </button>
-            ) : (
-              <Link
-                href={`/${locale}/movie/${activeMovie.id}`}
-                className="btn-glow rounded-full bg-primary px-6 py-3 text-sm font-bold text-white"
-              >
-                {locale === "vi" ? "Xem ngay" : "Watch now"}
-              </Link>
-            )}
-            <button
-              type="button"
-              disabled={isLoadingTrailer}
-              className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 disabled:cursor-wait disabled:opacity-60"
-              onClick={() => void handleWatchTrailer()}
-            >
-              {isLoadingTrailer
-                ? locale === "vi" ? "Đang tải..." : "Loading..."
-                : locale === "vi" ? "Xem trailer" : "Watch trailer"}
-            </button>
-          </div>
-        </div>
+          return (
+            <SwiperSlide key={movie.id} className="h-full">
+              {({ isActive }) => (
+                <div
+                  className="relative flex h-full items-center overflow-hidden bg-black bg-cover bg-center bg-no-repeat before:absolute before:inset-0 before:z-0 before:bg-black/60 before:content-['']"
+                  style={
+                    backdropUrl
+                      ? { backgroundImage: `url("${backdropUrl}")` }
+                      : undefined
+                  }
+                >
+                  <div className="absolute inset-x-0 bottom-0 z-0 h-28 bg-gradient-to-t from-background to-transparent" />
 
-        {posterUrl && (
-          <div className="absolute bottom-16 right-8 hidden h-[390px] w-[260px] overflow-hidden rounded-lg shadow-2xl shadow-black/70 lg:block xl:right-20">
-            <Image
-              src={posterUrl}
-              alt={`${activeMovie.title} poster`}
-              fill
-              className="object-cover"
-              sizes="260px"
-            />
-          </div>
-        )}
-      </div>
+                  <div className="site-shell relative z-10 flex h-fit w-full items-center justify-between px-4 py-12 md:px-12 md:py-32">
+                    <div className="w-full px-4 lg:w-2/3">
+                      <h1
+                        className={`font-heading text-4xl font-bold leading-none text-white transition-all duration-700 ease-in-out delay-300 motion-reduce:transition-none motion-reduce:delay-0 ${
+                          isActive && isInitialized
+                            ? "translate-y-0 opacity-100"
+                            : "-translate-y-24 opacity-0"
+                        } md:text-6xl lg:text-8xl`}
+                      >
+                        {movie.title}
+                      </h1>
+                      <p
+                        className={`my-12 text-xs font-medium text-white transition-all duration-700 ease-in-out delay-[600ms] motion-reduce:transition-none motion-reduce:delay-0 md:text-xl ${
+                          isActive && isInitialized
+                            ? "translate-y-0 opacity-100"
+                            : "-translate-y-24 opacity-0"
+                        }`}
+                      >
+                        {movie.overview || "Discover your next favorite movie."}
+                      </p>
+                      <div
+                        className={`flex flex-wrap gap-4 transition-all duration-700 ease-in-out delay-[900ms] motion-reduce:transition-none motion-reduce:delay-0 ${
+                          isActive && isInitialized
+                            ? "translate-y-0 opacity-100"
+                            : "-translate-y-24 opacity-0"
+                        }`}
+                      >
+                        {onWatchNow ? (
+                          <button
+                            type="button"
+                            className="btn-primary btn-lg shadow-btn"
+                            onClick={() => onWatchNow(movie)}
+                          >
+                            {locale === "vi" ? "Xem ngay" : "Watch now"}
+                          </button>
+                        ) : (
+                          <Link
+                            href={`/${locale}/movie/${movie.id}`}
+                            className="btn-primary btn-lg shadow-btn"
+                          >
+                            {locale === "vi" ? "Xem ngay" : "Watch now"}
+                          </Link>
+                        )}
+                        <button
+                          type="button"
+                          className="btn-default btn-lg shadow-btn backdrop-blur-sm"
+                          onClick={() => void handleWatchTrailer(movie)}
+                        >
+                          {locale === "vi" ? "Xem trailer" : "Watch trailer"}
+                        </button>
+                      </div>
+                    </div>
 
+                    {posterUrl && (
+                      <div
+                        className={`relative hidden px-4 lg:block lg:w-1/3 transition-all duration-700 ease-in-out delay-[600ms] motion-reduce:transition-none motion-reduce:delay-0 ${
+                          isActive && isInitialized
+                            ? "translate-y-0 opacity-100"
+                            : "-translate-y-24 opacity-0"
+                        }`}
+                      >
+                        <div className="relative h-[390px] w-96 max-w-full overflow-hidden rounded-3xl shadow-2xl shadow-black/70">
+                          <Image
+                            src={posterUrl}
+                            alt={`${movie.title} poster`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1279px) 30vw, 384px"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </SwiperSlide>
+          );
+        })}
+      </Swiper>
     </section>
   );
 }

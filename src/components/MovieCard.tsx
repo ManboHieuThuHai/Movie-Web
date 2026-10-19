@@ -36,7 +36,7 @@ export default function MovieCard({
   mediaType = "movie",
   locale = "en",
 }: MovieCardProps) {
-  const posterUrl = getTmdbImageUrl(movie.poster_path);
+  const posterUrl = getTmdbImageUrl(movie.poster_path || movie.backdrop_path);
 
   const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
   const openTrailer = useUIStore((state) => state.openTrailer);
@@ -62,60 +62,54 @@ export default function MovieCard({
       if (video) {
         openTrailer(video.key);
       }
-    } catch {
+    } catch (error) {
+      console.error("Unable to load the movie trailer.", error);
       return;
     } finally {
       setIsLoadingTrailer(false);
     }
   };
 
-  const playControl = (
-    <button
-      type="button"
-      aria-label={`${locale === "vi" ? "Phát" : "Play"} ${movie.title}`}
-      disabled={isLoadingTrailer}
-      className="absolute left-1/2 top-1/2 z-10 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-white opacity-0 shadow-lg shadow-primary/40 transition-all duration-300 hover:scale-110 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        void handlePlay();
-      }}
-    >
-      <PlayIcon />
-    </button>
-  );
-
   return (
-    <article className="group relative aspect-[2/3] overflow-hidden rounded-lg bg-white/5">
-      {posterUrl ? (
-        <Image
-          src={posterUrl}
-          alt={`${movie.title} poster`}
-          fill
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 180px"
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center px-4 text-center text-sm text-white/50">
-          No poster available
-        </div>
-      )}
+    <article className="group/container min-w-0">
+      <div className="group/poster relative h-72 overflow-hidden rounded-3xl bg-white/5 bg-cover bg-center bg-no-repeat after:absolute after:inset-0 after:rounded-3xl after:content-[''] after:bg-black/0 after:transition-colors after:duration-300 hover:after:bg-black/60 2xl:h-80">
+        <Link
+          href={`/${locale}/${mediaType}/${movie.id}`}
+          aria-label={`${locale === "vi" ? "Mở" : "Open"} ${movie.title}`}
+          className="absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          {posterUrl ? (
+            <Image
+              src={posterUrl}
+              alt={`${movie.title} poster`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 639px) 45vw, (max-width: 767px) 45vw, (max-width: 1023px) 23vw, 16vw"
+            />
+          ) : (
+            <span className="flex h-full items-center justify-center px-4 text-center text-sm text-white/50">
+              No poster available
+            </span>
+          )}
+        </Link>
+
+        <button
+          type="button"
+          aria-label={`${locale === "vi" ? "Phát" : "Play"} ${movie.title}`}
+          disabled={isLoadingTrailer}
+          className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 scale-50 items-center justify-center rounded-full bg-primary px-8 py-4 text-xl text-white opacity-0 shadow-btn transition-all duration-300 group-hover/poster:scale-100 group-hover/poster:opacity-100 hover:shadow-btn-hover focus-visible:scale-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
+          onClick={() => void handlePlay()}
+        >
+          <PlayIcon />
+        </button>
+      </div>
 
       <Link
         href={`/${locale}/${mediaType}/${movie.id}`}
-        aria-label={`${locale === "vi" ? "Mở" : "Open"} ${movie.title}`}
-        className="absolute inset-0 z-[1]"
-      />
-
-      <div className="absolute inset-0 bg-black/45 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      {playControl}
-
-      <div className="absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/90 to-transparent px-3 pb-3 pt-10 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-        <h2 className="truncate text-sm font-semibold text-white">{movie.title}</h2>
-        <p className="mt-1 text-xs text-white/60">
-          {movie.release_date?.slice(0, 4) || "Unknown year"}
-        </p>
-      </div>
+        className="mt-4 block text-sm font-medium text-white transition-colors duration-300 ease-in-out group-hover/container:text-primary md:text-lg"
+      >
+        {movie.title}
+      </Link>
     </article>
   );
 }

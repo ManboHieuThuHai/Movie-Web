@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/src/i18n/LocaleProvider";
@@ -17,7 +18,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 60);
+      setIsScrolled(window.scrollY >= 200);
     };
 
     handleScroll();
@@ -28,27 +29,33 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 flex justify-center px-8 transition-all duration-200 ease-in-out ${
         isScrolled
-          ? "border-b border-white/10 bg-black/80 backdrop-blur-md"
-          : "bg-transparent"
+          ? "bg-background py-0 md:py-4"
+          : "bg-transparent py-0 md:py-8"
       }`}
     >
       <nav
         aria-label={locale === "vi" ? "Điều hướng chính" : "Main navigation"}
-        className="site-shell flex h-20 items-center justify-between"
+        className="max-w-screen-2xl flex w-full items-center justify-between"
       >
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-3 font-heading text-3xl uppercase tracking-wide text-white transition-opacity hover:opacity-80"
+          className="group hidden items-center md:flex"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold">
-            H
+          <Image
+            src="/tmovie-55621206.png"
+            alt=""
+            width={48}
+            height={48}
+            className="mr-4 w-8 md:w-12"
+          />
+          <span className="text-2xl font-semibold text-white transition-colors group-hover:text-primary md:text-4xl">
+            theMovies
           </span>
-          the<span className="text-primary">Movies</span>
         </Link>
 
-        <div className="flex items-center gap-4 text-sm font-semibold text-white/80 sm:gap-8">
+        <div className="fixed bottom-0 left-0 right-0 -mx-4 flex items-center justify-evenly bg-background py-2 md:relative md:bottom-auto md:left-auto md:right-auto md:mx-0 md:bg-transparent md:py-4">
           {navItems.map((item) => {
             const isActive =
               item.match === `/${locale}`
@@ -60,19 +67,14 @@ export default function Header() {
                 key={item.label}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`rounded-md px-1 py-2 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-primary ${
-                  isActive ? "text-white" : "text-white/80"
-                }`}
+                className={`nav-item rounded-md px-4 py-2 text-lg ${
+                  isActive ? "after:w-full" : ""
+                } focus-visible:outline-2 focus-visible:outline-primary`}
               >
                 {item.label}
               </Link>
             );
           })}
-          <div className="flex items-center gap-2 border-l border-white/15 pl-4" aria-label={messages.language}>
-            <Link href={`/en${pathname.replace(/^\/(en|vi)/, "") || ""}`} className={locale === "en" ? "text-white" : "hover:text-white"}>EN</Link>
-            <span aria-hidden="true">/</span>
-            <Link href={`/vi${pathname.replace(/^\/(en|vi)/, "") || ""}`} className={locale === "vi" ? "text-white" : "hover:text-white"}>VI</Link>
-          </div>
         </div>
       </nav>
     </header>

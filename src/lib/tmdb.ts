@@ -180,6 +180,12 @@ export function searchMovies(query: string, page = 1, locale: Locale = "en") {
 export type TmdbCatalogCategory = "movie" | "tv";
 export type TmdbCatalogSort = "popular" | "top_rated";
 
+export function isTmdbCatalogCategory(
+  category: string,
+): category is TmdbCatalogCategory {
+  return category === "movie" || category === "tv";
+}
+
 export async function getCatalogPage(
   category: TmdbCatalogCategory,
   page = 1,

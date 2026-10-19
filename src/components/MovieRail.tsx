@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Autoplay } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 import MovieCard from "@/src/components/MovieCard";
 import type { TmdbCatalogCategory, TmdbMovie } from "@/src/lib/tmdb";
@@ -23,54 +24,61 @@ export default function MovieRail({
   layout = "rail",
   locale = "en",
 }: MovieRailProps) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
   const isGrid = layout === "grid";
 
-  useEffect(() => {
-    if (isGrid || !autoAdvance || movies.length < 2 || isPaused) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      const rail = railRef.current;
-      if (!rail) {
-        return;
-      }
-
-      const firstCard = rail.firstElementChild;
-      const cardWidth = firstCard?.getBoundingClientRect().width ?? rail.clientWidth;
-      const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0;
-      const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
-      const nextPosition =
-        rail.scrollLeft + cardWidth + gap >= maxScrollLeft - 2
-          ? 0
-          : rail.scrollLeft + cardWidth + gap;
-
-      rail.scrollTo({ left: nextPosition, behavior: "smooth" });
-    }, 7000);
-
-    return () => window.clearInterval(interval);
-  }, [autoAdvance, isGrid, isPaused, movies.length]);
+  if (isGrid) {
+    return (
+      <div className="-mx-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+        {movies.map((movie) => (
+          <div
+            key={`${mediaType}-${movie.id}`}
+            className="mb-8 min-w-0 px-2"
+          >
+            <MovieCard
+              movie={movie}
+              mediaType={mediaType}
+              onPlay={onPlay}
+              locale={locale}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div
-      ref={railRef}
-      className={isGrid ? "movie-grid" : "movie-rail"}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          setIsPaused(false);
-        }
+    <Swiper
+      modules={[Autoplay]}
+      className="movie-rail [scrollbar-width:none]"
+      grabCursor
+      slidesPerView={2}
+      spaceBetween={16}
+      breakpoints={{
+        640: { slidesPerView: 2, spaceBetween: 16 },
+        768: { slidesPerView: 4, spaceBetween: 16 },
+        1024: { slidesPerView: 6, spaceBetween: 16 },
       }}
+      loop={movies.length > 1}
+      autoplay={
+        autoAdvance && movies.length > 1
+          ? {
+              delay: 3000,
+              disableOnInteraction: false,
+            }
+          : false
+      }
+      watchOverflow
     >
       {movies.map((movie) => (
-        <div key={`${mediaType}-${movie.id}`} className="movie-rail__item">
-          <MovieCard movie={movie} mediaType={mediaType} onPlay={onPlay} locale={locale} />
-        </div>
+        <SwiperSlide key={`${mediaType}-${movie.id}`} className="h-auto">
+          <MovieCard
+            movie={movie}
+            mediaType={mediaType}
+            onPlay={onPlay}
+            locale={locale}
+          />
+        </SwiperSlide>
       ))}
-    </div>
+    </Swiper>
   );
 }
