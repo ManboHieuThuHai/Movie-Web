@@ -139,7 +139,7 @@ export default function HeroSlide({
                         )}
                         <button
                           type="button"
-                          className="btn-default btn-lg shadow-btn backdrop-blur-sm"
+                          className="btn-default btn-lg backdrop-blur-sm"
                           onClick={() => void handleWatchTrailer(movie)}
                         >
                           {locale === "vi" ? "Xem trailer" : "Watch trailer"}

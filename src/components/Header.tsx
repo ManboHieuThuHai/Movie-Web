@@ -67,7 +67,7 @@ export default function Header() {
                 key={item.label}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`nav-item rounded-md px-4 py-2 text-lg ${
+                className={`nav-item rounded-md px-4 py-2 text-base md:text-xl ${
                   isActive ? "after:w-full" : ""
                 } focus-visible:outline-2 focus-visible:outline-primary`}
               >

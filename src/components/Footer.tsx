@@ -30,36 +30,45 @@ export default function Footer() {
     messages.aboutUs,
     messages.privacy,
   ];
+  
   return (
-    <footer className="relative isolate h-[25rem] overflow-hidden border-t border-white/10 bg-black px-8 py-12 text-white lg:h-[30rem] md:p-16">
-      <div className="absolute inset-0 -z-10 grid grid-cols-2 opacity-25 sm:grid-cols-4">
+    <footer className="relative h-[25rem] lg:h-[30rem] overflow-hidden px-8 py-12 md:p-16">
+      {/* Background grid images */}
+      <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4">
         {footerPosters.map((posterPath, index) => (
           <div
             key={`${posterPath}-${index}`}
-            className="bg-cover bg-center grayscale"
+            className="bg-cover bg-center"
             style={{
               backgroundImage: `url(https://image.tmdb.org/t/p/w342${posterPath})`,
             }}
           />
         ))}
       </div>
-      <div className="absolute inset-0 -z-10 bg-black/80" />
+      
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/70" />
+      
+      {/* Content */}
       <div className="relative mx-auto flex h-full max-w-4xl flex-col justify-around">
-        <Link href={`/${locale}`} className="mx-auto flex w-fit items-center gap-3 text-white">
+        <Link 
+          href={`/${locale}`} 
+          className="mx-auto flex w-fit items-center hover:cursor-pointer group"
+        >
           <Image
             src="/tmovie-55621206.png"
-            alt=""
+            alt="Logo"
             width={48}
             height={48}
             className="mr-2 w-8 md:mr-4 md:w-12"
           />
-          <span className="text-2xl font-semibold md:text-4xl">
+          <h1 className="text-white font-semibold text-2xl md:text-4xl group-hover:text-primary transition-colors duration-300">
             theMovies
-          </span>
+          </h1>
         </Link>
         <nav
           aria-label={locale === "vi" ? "Liên kết cuối trang" : "Footer links"}
-          className="-mx-2 flex flex-wrap items-start justify-between text-center text-base font-semibold md:text-2xl"
+          className="-mx-2 flex flex-wrap items-start justify-between text-white font-semibold text-base md:text-2xl"
         >
           {footerLinks.map((label) => (
             <a key={label} href="#" className="footer-item">
