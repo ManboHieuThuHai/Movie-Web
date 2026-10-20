@@ -96,8 +96,8 @@ export default function HeroSlide({
                 >
                   <div className="absolute inset-x-0 bottom-0 z-0 h-28 bg-gradient-to-t from-background to-transparent" suppressHydrationWarning />
 
-                  <div className="site-shell relative z-10 flex h-fit w-full items-center justify-between px-4 py-12 md:px-12 md:py-32" suppressHydrationWarning>
-                    <div className="w-full px-4 lg:w-2/3" suppressHydrationWarning>
+                  <div className="relative z-10 mx-auto flex h-fit w-full max-w-screen-2xl items-center justify-between px-8 py-12 md:py-32" suppressHydrationWarning>
+                    <div className="w-full lg:w-2/3 md:pl-16" suppressHydrationWarning>
                       <h1
                         className={`font-heading text-4xl font-bold leading-none text-white transition-all duration-700 ease-in-out delay-300 motion-reduce:transition-none motion-reduce:delay-0 ${
                           isActive && isInitialized
@@ -151,7 +151,7 @@ export default function HeroSlide({
 
                     {posterUrl && (
                       <div
-                        className={`relative hidden px-4 lg:block lg:w-1/3 transition-all duration-700 ease-in-out delay-[600ms] motion-reduce:transition-none motion-reduce:delay-0 ${
+                        className={`relative hidden lg:block lg:w-1/3 transition-all duration-700 ease-in-out delay-[600ms] motion-reduce:transition-none motion-reduce:delay-0 ${
                           isActive && isInitialized
                             ? "translate-y-0 opacity-100"
                             : "-translate-y-24 opacity-0"
