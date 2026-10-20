@@ -97,42 +97,42 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
               <p className="py-2 text-xs text-white md:py-4 md:text-sm lg:text-base">
                 {media.overview || messages.noOverview}
               </p>
+
+              {/* Cast section - nằm trong content bên phải */}
+              {cast.length > 0 && (
+                <div className="py-2 lg:py-4">
+                  <h3 className="text-white text-xl font-medium">
+                    {messages.casts}
+                  </h3>
+                  <div className="flex flex-wrap -mx-2 mt-1">
+                    {cast.slice(0, 5).map((actor) => (
+                      <div key={actor.id} className="w-28 px-2 mb-1">
+                        {actor.profileUrl ? (
+                          <Image
+                            src={actor.profileUrl}
+                            alt={actor.name}
+                            width={112}
+                            height={168}
+                            className="rounded-xl w-full"
+                            sizes="112px"
+                          />
+                        ) : (
+                          <div className="aspect-[2/3] rounded-xl bg-white/10 flex items-center justify-center text-xs text-white/40">
+                            ?
+                          </div>
+                        )}
+                        <span className="text-white text-xs md:text-sm font-sm">
+                          {actor.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
-
-      {/* Cast section - Tách ra thành section riêng */}
-      {cast.length > 0 && (
-        <section className="relative mx-auto max-w-screen-2xl px-4 py-8 md:px-8 lg:px-16">
-          <h2 className="mb-6 text-lg font-medium text-white md:text-2xl">
-            {messages.casts}
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            {cast.slice(0, 5).map((actor) => (
-              <div key={actor.id} className="w-28">
-                {actor.profileUrl ? (
-                  <Image
-                    src={actor.profileUrl}
-                    alt={actor.name}
-                    width={112}
-                    height={168}
-                    className="mb-2 w-full rounded-xl"
-                    sizes="112px"
-                  />
-                ) : (
-                  <div className="mb-2 flex aspect-[2/3] items-center justify-center rounded-xl bg-white/10 text-xs text-white/40">
-                    {messages.noPhoto}
-                  </div>
-                )}
-                <p className="text-xs text-white md:text-sm">
-                  {actor.name}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       <section
         id="trailers"
