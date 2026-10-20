@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 import MovieRail from "@/src/components/MovieRail";
@@ -19,13 +21,14 @@ type MediaDetailsProps = {
 export default function MediaDetails({ media, mediaType, locale = "en" }: MediaDetailsProps) {
   const messages = getMessages(locale);
   const isTv = mediaType === "tv";
+  
   const trailers = media.videos.results.filter(
     (video) =>
       video.site === "YouTube" &&
-      Boolean(video.key) &&
-      (video.type === "Trailer" || video.type === "Teaser"),
-  ).slice(0, 5);
-  const cast = media.credits.cast.slice(0, 5).map((actor) => ({
+      Boolean(video.key),
+      // Xóa filter type để hiển thị TẤT CẢ videos (không chỉ Trailer/Teaser)
+  );
+  const cast = media.credits.cast.slice(0, 20).map((actor) => ({
     ...actor,
     profileUrl: getTmdbImageUrl(actor.profile_path),
   }));
@@ -34,9 +37,18 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
     media.poster_path || media.backdrop_path,
   );
 
+  // DEBUG
+  console.log('🎬 MediaDetails:', {
+    movieId: media.id,
+    trailersCount: trailers.length,
+    trailerNames: trailers.map(v => v.name),
+    totalVideos: media.videos.results.length,
+    allVideos: media.videos.results.map(v => ({ type: v.type, name: v.name })),
+  });
+
   return (
-    <main className="min-h-screen bg-background pb-16 text-foreground">
-      <section className="relative isolate overflow-hidden bg-background px-4 py-12 md:px-8 md:pb-20 md:pt-32 lg:px-16">
+    <main className="min-h-screen bg-background pb-16 text-foreground" suppressHydrationWarning>
+      <section className="relative isolate overflow-hidden bg-background px-4 py-12 md:px-8 md:pb-20 md:pt-32 lg:px-16" suppressHydrationWarning>
         {backdropUrl && (
           <Image
             src={backdropUrl}
@@ -85,37 +97,42 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
               <p className="py-2 text-xs text-white md:py-4 md:text-sm lg:text-base">
                 {media.overview || messages.noOverview}
               </p>
-
-              <div className="py-2 lg:py-4">
-                <h2 className="text-xl font-medium text-white">{messages.casts}</h2>
-                <div className="-mx-2 mt-1 flex flex-wrap">
-                  {cast.map((actor) => (
-                    <div key={actor.id} className="mb-1 w-28 px-2">
-                      {actor.profileUrl ? (
-                        <Image
-                          src={actor.profileUrl}
-                          alt={actor.name}
-                          width={500}
-                          height={750}
-                          className="w-full rounded-xl"
-                          sizes="112px"
-                        />
-                      ) : (
-                        <div className="flex aspect-[2/3] items-center justify-center rounded-xl bg-white/10 text-xs text-white/40">
-                          {messages.noPhoto}
-                        </div>
-                      )}
-                      <span className="text-xs font-normal text-white md:text-sm">
-                        {actor.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Cast section - Tách ra thành section riêng */}
+      {cast.length > 0 && (
+        <section className="relative mx-auto max-w-screen-2xl px-4 py-8 md:px-8 lg:px-16">
+          <h2 className="mb-6 text-lg font-medium text-white md:text-2xl">
+            {messages.casts}
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            {cast.slice(0, 5).map((actor) => (
+              <div key={actor.id} className="w-28">
+                {actor.profileUrl ? (
+                  <Image
+                    src={actor.profileUrl}
+                    alt={actor.name}
+                    width={112}
+                    height={168}
+                    className="mb-2 w-full rounded-xl"
+                    sizes="112px"
+                  />
+                ) : (
+                  <div className="mb-2 flex aspect-[2/3] items-center justify-center rounded-xl bg-white/10 text-xs text-white/40">
+                    {messages.noPhoto}
+                  </div>
+                )}
+                <p className="text-xs text-white md:text-sm">
+                  {actor.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section
         id="trailers"
@@ -128,10 +145,14 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
                 <h2 className="mb-4 text-base font-semibold text-white md:text-2xl">
                   {video.name}
                 </h2>
-                <TrailerPreview
-                  videoKey={video.key}
+                <iframe
+                  src={`https://www.youtube.com/embed/${video.key}`}
                   title={video.name}
-                  watchLabel={messages.watchTrailer}
+                  width="100%"
+                  height="800"
+                  className="rounded-lg"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
                 />
               </div>
             ))}
@@ -143,13 +164,13 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
 
         {media.similar.results.length > 0 && (
           <section className="mx-auto mt-16 max-w-screen-2xl px-4 md:px-8 lg:px-16">
-            <h2 className="text-lg font-medium text-white md:text-2xl">
+            <h2 className="mb-6 text-lg font-medium text-white md:text-2xl">
               {isTv ? messages.similarSeries : messages.similarMovies}
             </h2>
             <MovieRail
               movies={media.similar.results}
               mediaType={mediaType}
-              autoAdvance
+              autoAdvance={false}
               locale={locale}
             />
           </section>

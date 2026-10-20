@@ -60,6 +60,7 @@ export default function HeroSlide({
     <section
       aria-label="Featured movies"
       className="relative isolate h-[25rem] overflow-hidden bg-black md:h-[36rem] lg:h-[52rem]"
+      suppressHydrationWarning
     >
       <Swiper
         modules={[Autoplay, EffectFade]}
@@ -91,11 +92,12 @@ export default function HeroSlide({
                       ? { backgroundImage: `url("${backdropUrl}")` }
                       : undefined
                   }
+                  suppressHydrationWarning
                 >
-                  <div className="absolute inset-x-0 bottom-0 z-0 h-28 bg-gradient-to-t from-background to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 z-0 h-28 bg-gradient-to-t from-background to-transparent" suppressHydrationWarning />
 
-                  <div className="site-shell relative z-10 flex h-fit w-full items-center justify-between px-4 py-12 md:px-12 md:py-32">
-                    <div className="w-full px-4 lg:w-2/3">
+                  <div className="site-shell relative z-10 flex h-fit w-full items-center justify-between px-4 py-12 md:px-12 md:py-32" suppressHydrationWarning>
+                    <div className="w-full px-4 lg:w-2/3" suppressHydrationWarning>
                       <h1
                         className={`font-heading text-4xl font-bold leading-none text-white transition-all duration-700 ease-in-out delay-300 motion-reduce:transition-none motion-reduce:delay-0 ${
                           isActive && isInitialized

@@ -14,6 +14,11 @@ import {
 async function getHeroMovies(locale: Locale): Promise<TmdbMovie[]> {
   try {
     const popularMovies = (await getPopular(1, locale)).results;
+    console.log('🎬 Hero Movies Debug:', {
+      totalPopularMovies: popularMovies.length,
+      locale
+    });
+    
     const featuredIds = [1423191, 1291595, 1148365, 1368337];
     const featuredMovies = featuredIds
       .map((id) => popularMovies.find((movie) => movie.id === id))

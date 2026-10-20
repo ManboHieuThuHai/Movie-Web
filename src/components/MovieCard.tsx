@@ -72,11 +72,11 @@ export default function MovieCard({
 
   return (
     <article className="group/container min-w-0">
-      <div className="group/poster relative h-72 overflow-hidden rounded-3xl bg-white/5 bg-cover bg-center bg-no-repeat after:absolute after:inset-0 after:rounded-3xl after:content-[''] after:bg-black/0 after:transition-colors after:duration-300 hover:after:bg-black/60 2xl:h-80">
+      <div className="group/poster relative h-72 overflow-hidden rounded-3xl bg-white/5 bg-cover bg-center bg-no-repeat after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:rounded-3xl after:content-[''] after:bg-black/0 after:transition-colors after:duration-300 hover:after:bg-black/60 2xl:h-80">
         <Link
           href={`/${locale}/${mediaType}/${movie.id}`}
           aria-label={`${locale === "vi" ? "Mở" : "Open"} ${movie.title}`}
-          className="absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="absolute inset-0 z-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {posterUrl ? (
             <Image
@@ -98,7 +98,11 @@ export default function MovieCard({
           aria-label={`${locale === "vi" ? "Phát" : "Play"} ${movie.title}`}
           disabled={isLoadingTrailer}
           className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 scale-50 items-center justify-center rounded-full bg-primary px-8 py-4 text-xl text-white opacity-0 shadow-btn transition-all duration-300 group-hover/poster:scale-100 group-hover/poster:opacity-100 hover:shadow-btn-hover focus-visible:scale-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
-          onClick={() => void handlePlay()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void handlePlay();
+          }}
         >
           <PlayIcon />
         </button>

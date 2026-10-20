@@ -219,6 +219,15 @@ export function getMovieDetails(movieId: number | string, locale: Locale = "en")
   }, locale);
 }
 
+// Function mới: Lấy similar movies với nhiều pages
+export async function getMoreSimilarMovies(
+  movieId: number | string, 
+  page: number = 2,
+  locale: Locale = "en"
+) {
+  return fetchTmdb<TmdbMovieList>(`/movie/${movieId}/similar`, { page }, locale);
+}
+
 export async function getTvDetails(tvId: number | string, locale: Locale = "en") {
   const response = await fetchTmdb<TmdbTvDetailsResponse>(`/tv/${tvId}`, {
     append_to_response: "videos,credits,similar",

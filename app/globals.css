@@ -43,6 +43,24 @@ body::-webkit-scrollbar-thumb:hover {
   background: rgb(255 255 255 / 0.55);
 }
 
+.cast-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cast-scroll::-webkit-scrollbar-track {
+  background: rgb(255 255 255 / 0.05);
+  border-radius: 999px;
+}
+
+.cast-scroll::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.3);
+  border-radius: 999px;
+}
+
+.cast-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 0.5);
+}
+
 .site-shell {
   width: min(calc(100% - 2rem), 90rem);
   margin-inline: auto;

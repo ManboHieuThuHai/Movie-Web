@@ -59,6 +59,15 @@ export default function Catalog({
   const uniqueMovies = Array.from(
     new Map(movies.map((movie) => [movie.id, movie])).values(),
   );
+  
+  // DEBUG: Log số lượng phim
+  console.log('📊 Catalog Debug:', {
+    totalPages: catalogQuery.data?.pages.length,
+    totalMovies: movies.length,
+    uniqueMovies: uniqueMovies.length,
+    category,
+    sort,
+  });
   const title =
     category === "movie"
       ? locale === "vi"
