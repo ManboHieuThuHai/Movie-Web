@@ -48,7 +48,7 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
 
   return (
     <main className="min-h-screen bg-background pb-16 text-foreground" suppressHydrationWarning>
-      <section className="relative isolate overflow-hidden bg-background px-4 py-12 md:px-8 md:pb-20 md:pt-32 lg:px-16" suppressHydrationWarning>
+      <section className="relative isolate overflow-hidden bg-background py-12 md:pb-20 md:pt-32" suppressHydrationWarning>
         {backdropUrl && (
           <Image
             src={backdropUrl}
@@ -62,9 +62,10 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
         <div className="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-black/30" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-background" />
 
-        <div className="relative mx-auto max-w-screen-2xl">
-          <div className="-mx-4 flex max-h-fit items-start">
-            <div className="hidden w-64 px-4 md:block lg:w-96">
+        <div className="relative mx-auto max-w-screen-2xl px-4 md:px-8">
+          <div className="flex max-h-fit items-start gap-4 md:gap-8">
+            {/* Poster - căn thẳng hàng với chữ "theMovies" (logo 48px + mr-4 = 64px) */}
+            <div className="hidden w-64 md:block lg:w-96" style={{ marginLeft: '64px' }}>
               {posterUrl ? (
                 <Image
                   src={posterUrl}
@@ -79,7 +80,7 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
               )}
             </div>
 
-            <div className="-my-2 flex flex-1 flex-col justify-between px-4 lg:-my-4">
+            <div className="-my-2 flex flex-1 flex-col justify-between lg:-my-4">
               <h1 className="py-2 text-3xl font-bold text-white lg:py-4 md:text-5xl lg:text-7xl">
                 {media.title}
               </h1>
@@ -136,7 +137,7 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
 
       <section
         id="trailers"
-        className="relative mx-auto mt-4 max-w-screen-2xl px-4 md:px-8 lg:px-16"
+        className="relative mx-auto mt-4 max-w-screen-2xl px-4 md:px-8"
       >
         {trailers.length > 0 ? (
           <div className="space-y-16">
@@ -163,7 +164,7 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
       </section>
 
         {media.similar.results.length > 0 && (
-          <section className="mx-auto mt-16 max-w-screen-2xl px-4 md:px-8 lg:px-16">
+          <section className="mx-auto mt-16 max-w-screen-2xl px-4 md:px-8">
             <h2 className="mb-6 text-lg font-medium text-white md:text-2xl">
               {isTv ? messages.similarSeries : messages.similarMovies}
             </h2>
