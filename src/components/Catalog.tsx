@@ -60,7 +60,6 @@ export default function Catalog({
     new Map(movies.map((movie) => [movie.id, movie])).values(),
   );
   
-  // DEBUG: Log số lượng phim
   console.log('📊 Catalog Debug:', {
     totalPages: catalogQuery.data?.pages.length,
     totalMovies: movies.length,
