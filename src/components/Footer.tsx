@@ -4,17 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/src/i18n/LocaleProvider";
 
-const footerPosters = [
-  "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
-  "/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg",
-  "/1XDDXPXGiI8id7MrUxK36ke7gkX.jpg",
-  "/p1F51Lvj3sMopG948F5HsBf8w3J.jpg",
-  "/5P8SmMzSNYJ8dtB7z0GfHf4dKq.jpg",
-  "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
-  "/rAiYT9aN9H5c3a7xYf7d4mXvQ.jpg",
-  "/vQ3kzWk7m2Z8e6n1P4s5d0f9gH.jpg",
-];
-
 export default function Footer() {
   const { locale, messages } = useLocale();
   const footerLinks = [
@@ -33,18 +22,15 @@ export default function Footer() {
   
   return (
     <footer className="relative h-[25rem] lg:h-[30rem] overflow-hidden px-8 py-12 md:p-16">
-      {/* Background grid images */}
-      <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4">
-        {footerPosters.map((posterPath, index) => (
-          <div
-            key={`${posterPath}-${index}`}
-            className="bg-cover bg-center"
-            style={{
-              backgroundImage: `url(https://image.tmdb.org/t/p/w342${posterPath})`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Background image */}
+      <Image
+        src="/footer.png"
+        alt=""
+        fill
+        className="object-cover object-center"
+        sizes="100vw"
+        priority={false}
+      />
       
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/70" />
