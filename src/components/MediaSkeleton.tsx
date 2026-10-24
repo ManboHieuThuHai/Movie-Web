@@ -1,9 +1,9 @@
-type MovieSkeletonProps = {
+type MediaSkeletonProps = {
   count?: number;
   layout?: "rail" | "grid";
 };
 
-function MovieSkeletonCard() {
+function MediaSkeletonCard() {
   return (
     <div
       className="animate-pulse motion-reduce:animate-none"
@@ -14,10 +14,10 @@ function MovieSkeletonCard() {
   );
 }
 
-export default function MovieSkeleton({
+export default function MediaSkeleton({
   count = 6,
   layout = "grid",
-}: MovieSkeletonProps) {
+}: MediaSkeletonProps) {
   return (
     <div
       className={
@@ -25,7 +25,7 @@ export default function MovieSkeleton({
           ? "grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6"
           : "movie-rail [scrollbar-width:none] flex snap-x snap-proximity gap-4 overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto"
       }
-      aria-label="Loading movies"
+      aria-label="Loading media"
       aria-busy="true"
     >
       {Array.from({ length: count }, (_, index) => (
@@ -37,7 +37,7 @@ export default function MovieSkeleton({
               : "movie-rail__item min-w-0 shrink-0 basis-[calc((100%_-_1rem)/2)] snap-start md:basis-[calc((100%_-_3rem)/4)] lg:basis-[calc((100%_-_5rem)/6)]"
           }
         >
-          <MovieSkeletonCard />
+          <MediaSkeletonCard />
         </div>
       ))}
     </div>

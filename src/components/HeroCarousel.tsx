@@ -7,28 +7,27 @@ import { Autoplay, EffectFade } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import {
-  getMovieDetails,
   getTmdbImageUrl,
   type TmdbMovie,
 } from "@/src/lib/tmdb";
-import { useUIStore } from "@/src/store/useUIStore";
 import type { Locale } from "@/src/i18n/config";
+import { useUIStore } from "@/src/store/useUIStore";
 
-type HeroSlideProps = {
+type HeroCarouselProps = {
   movies: TmdbMovie[];
   onWatchNow?: (movie: TmdbMovie) => void;
   onWatchTrailer?: (movie: TmdbMovie) => void;
   locale?: Locale;
 };
 
-export default function HeroSlide({
+export default function HeroCarousel({
   movies,
   onWatchNow,
   onWatchTrailer,
   locale = "en",
-}: HeroSlideProps) {
+}: HeroCarouselProps) {
   const [isInitialized, setIsInitialized] = useState(false);
-  const openTrailer = useUIStore((state) => state.openTrailer);
+  const playTrailer = useUIStore((state) => state.playTrailer);
 
   const handleWatchTrailer = async (movie: TmdbMovie) => {
     if (onWatchTrailer) {
@@ -36,20 +35,7 @@ export default function HeroSlide({
       return;
     }
 
-    try {
-      const details = await getMovieDetails(movie.id, locale);
-      const video = details.videos.results.find(
-        (candidate) =>
-          candidate.site === "YouTube" &&
-          (candidate.type === "Trailer" || candidate.type === "Teaser"),
-      );
-
-      if (video) {
-        openTrailer(video.key);
-      }
-    } catch {
-      return;
-    }
+    await playTrailer(movie, "movie", locale);
   };
 
   if (movies.length === 0) {

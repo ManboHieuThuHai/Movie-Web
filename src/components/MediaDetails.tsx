@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 
-import MovieRail from "@/src/components/MovieRail";
-import TrailerPreview from "@/src/components/TrailerPreview";
+import MediaCarousel from "@/src/components/MediaCarousel";
 import { getMessages, type Locale } from "@/src/i18n/config";
 import {
   getTmdbImageUrl,
@@ -168,10 +167,9 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
             <h2 className="mb-6 text-lg font-medium text-white md:text-2xl">
               {isTv ? messages.similarSeries : messages.similarMovies}
             </h2>
-            <MovieRail
+            <MediaCarousel
               movies={media.similar.results}
               mediaType={mediaType}
-              autoAdvance={false}
               locale={locale}
             />
           </section>

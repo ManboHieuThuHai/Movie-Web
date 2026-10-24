@@ -2,19 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 
 import {
-  getMovieDetails,
   getTmdbImageUrl,
-  getTvDetails,
   type TmdbCatalogCategory,
   type TmdbMovie,
 } from "@/src/lib/tmdb";
 import type { Locale } from "@/src/i18n/config";
 import { useUIStore } from "@/src/store/useUIStore";
 
-type MovieCardProps = {
+type MediaCardProps = {
   movie: TmdbMovie;
   onPlay?: (movie: TmdbMovie) => void;
   mediaType?: TmdbCatalogCategory;
@@ -30,16 +27,15 @@ function PlayIcon() {
   );
 }
 
-export default function MovieCard({
+export default function MediaCard({
   movie,
   onPlay,
   mediaType = "movie",
   locale = "en",
-}: MovieCardProps) {
+}: MediaCardProps) {
   const posterUrl = getTmdbImageUrl(movie.poster_path || movie.backdrop_path);
-
-  const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
-  const openTrailer = useUIStore((state) => state.openTrailer);
+  const playTrailer = useUIStore((state) => state.playTrailer);
+  const isLoadingTrailer = useUIStore((state) => state.isLoadingTrailer);
 
   const handlePlay = async () => {
     if (onPlay) {
@@ -47,27 +43,7 @@ export default function MovieCard({
       return;
     }
 
-    setIsLoadingTrailer(true);
-    try {
-      const details =
-        mediaType === "tv"
-          ? await getTvDetails(movie.id, locale)
-          : await getMovieDetails(movie.id, locale);
-      const video = details.videos.results.find(
-        (candidate) =>
-          candidate.site === "YouTube" &&
-          (candidate.type === "Trailer" || candidate.type === "Teaser"),
-      );
-
-      if (video) {
-        openTrailer(video.key);
-      }
-    } catch (error) {
-      console.error("Unable to load the movie trailer.", error);
-      return;
-    } finally {
-      setIsLoadingTrailer(false);
-    }
+    await playTrailer(movie, mediaType, locale);
   };
 
   return (

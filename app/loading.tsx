@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "@/src/i18n/LocaleProvider";
-import MovieSkeleton from "@/src/components/MovieSkeleton";
+import MediaSkeleton from "@/src/components/MediaSkeleton";
 
 export default function Loading() {
   const { messages } = useLocale();
@@ -26,7 +26,7 @@ export default function Loading() {
       {[0, 1, 2].map((section) => (
         <section key={section} className="site-shell py-12">
           <div className="mb-8 h-10 w-64 animate-pulse rounded bg-white/10 motion-reduce:animate-none" />
-          <MovieSkeleton layout="rail" />
+          <MediaSkeleton layout="rail" />
         </section>
       ))}
     </main>

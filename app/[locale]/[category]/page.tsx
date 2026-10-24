@@ -1,4 +1,4 @@
-import Catalog from "@/src/components/Catalog";
+import MediaCatalog from "@/src/components/MediaCatalog";
 import { isLocale } from "@/src/i18n/config";
 import { isTmdbCatalogCategory } from "@/src/lib/tmdb";
 import { notFound } from "next/navigation";
@@ -39,7 +39,7 @@ export default async function CatalogPage({
           {title}
         </h1>
       </section>
-      <Catalog
+      <MediaCatalog
         key={keyword ?? ""}
         category={category}
         sort={type === "top_rated" ? "top_rated" : "popular"}

@@ -1,7 +1,9 @@
-import Catalog from "@/src/components/Catalog";
-import HeroSlide from "@/src/components/HeroSlide";
+import HeroCarousel from "@/src/components/HeroCarousel";
+import MediaCatalog from "@/src/components/MediaCatalog";
+import MediaSkeleton from "@/src/components/MediaSkeleton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { getMessages, isLocale, type Locale } from "@/src/i18n/config";
 import {
@@ -80,7 +82,7 @@ export default async function LocalizedHome({ params }: HomePageProps) {
   return (
     <main id="home" className="min-h-screen bg-background text-foreground">
       {heroMovies.length > 0 ? (
-        <HeroSlide movies={heroMovies} locale={locale} />
+        <HeroCarousel movies={heroMovies} locale={locale} />
       ) : (
         <section className="flex min-h-[520px] items-end bg-gradient-to-br from-primary/30 via-background to-background px-6 pb-20 lg:px-10">
           <div className="site-shell">
@@ -96,34 +98,48 @@ export default async function LocalizedHome({ params }: HomePageProps) {
       <div className="bg-background px-4 py-8 md:px-8 md:py-16">
         <div className="mx-auto max-w-screen-2xl">
           {sections.map((section) => (
-            <section
+            <Suspense
               key={section.id}
-              id={section.id}
-              className="scroll-mt-20 [&+section]:mt-8 md:[&+section]:mt-16"
+              fallback={
+                <div className="scroll-mt-20 [&+section]:mt-8 md:[&+section]:mt-16">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-lg font-medium text-white md:text-2xl">
+                      {section.heading}
+                    </h2>
+                  </div>
+                  <MediaSkeleton layout="rail" />
+                </div>
+              }
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-medium text-white md:text-2xl">
-                  {section.heading}
-                </h2>
-                <Link
-                  href={`/${locale}/${section.category}?type=${section.sort}`}
-                  className="btn-default px-4 py-0 text-sm font-medium md:px-6 md:text-lg"
-                >
-                  {messages.viewMore}
-                </Link>
-              </div>
-              <div className="mt-8">
-                <Catalog
-                  {...section}
-                  locale={locale}
-                  showSearch={false}
-                  showHeader={false}
-                  showWatchMore={false}
-                  autoAdvance
-                  compact
-                />
-              </div>
-            </section>
+              <section
+                id={section.id}
+                className="scroll-mt-20 [&+section]:mt-8 md:[&+section]:mt-16"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-medium text-white md:text-2xl">
+                    {section.heading}
+                  </h2>
+                  <Link
+                    href={`/${locale}/${section.category}?type=${section.sort}`}
+                    className="btn-default px-4 py-0 text-sm font-medium md:px-6 md:text-lg"
+                  >
+                    {messages.viewMore}
+                  </Link>
+                </div>
+                <div className="mt-8">
+                  <MediaCatalog
+                    category={section.category}
+                    sort={section.sort}
+                    locale={locale}
+                    showSearch={false}
+                    showHeader={false}
+                    showWatchMore={false}
+                    autoAdvance
+                    compact
+                  />
+                </div>
+              </section>
+            </Suspense>
           ))}
         </div>
       </div>

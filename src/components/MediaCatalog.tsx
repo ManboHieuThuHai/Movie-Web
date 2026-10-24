@@ -3,7 +3,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Autoplay } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
+import MediaCard from "@/src/components/MediaCard";
+import MediaSkeleton from "@/src/components/MediaSkeleton";
 import {
   getCatalogPage,
   type TmdbCatalogCategory,
@@ -11,10 +15,8 @@ import {
   type TmdbMovie,
 } from "@/src/lib/tmdb";
 import { getMessages, type Locale } from "@/src/i18n/config";
-import MovieRail from "@/src/components/MovieRail";
-import MovieSkeleton from "@/src/components/MovieSkeleton";
 
-type CatalogProps = {
+type MediaCatalogProps = {
   category: TmdbCatalogCategory;
   sort?: TmdbCatalogSort;
   heading?: string;
@@ -28,7 +30,7 @@ type CatalogProps = {
   onPlay?: (movie: TmdbMovie) => void;
 };
 
-export default function Catalog({
+export default function MediaCatalog({
   category,
   sort = "popular",
   heading,
@@ -40,7 +42,7 @@ export default function Catalog({
   initialQuery = "",
   locale = "en",
   onPlay,
-}: CatalogProps) {
+}: MediaCatalogProps) {
   const router = useRouter();
   const messages = getMessages(locale);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -142,7 +144,7 @@ export default function Catalog({
 
         <div className={showSearch ? "mt-16" : undefined}>
           {catalogQuery.isLoading && (
-            <MovieSkeleton layout={autoAdvance ? "rail" : "grid"} />
+            <MediaSkeleton layout={autoAdvance ? "rail" : "grid"} />
           )}
 
           {catalogQuery.isError && (
@@ -162,21 +164,66 @@ export default function Catalog({
             )}
 
           {uniqueMovies.length > 0 && (
-            <MovieRail
-              movies={uniqueMovies}
-              mediaType={category}
-              onPlay={onPlay}
-              autoAdvance={autoAdvance}
-              layout={autoAdvance ? "rail" : "grid"}
-              locale={locale}
-            />
+            <>
+              {autoAdvance ? (
+                <Swiper
+                  modules={[Autoplay]}
+                  className="movie-rail [scrollbar-width:none]"
+                  grabCursor
+                  slidesPerView={2}
+                  spaceBetween={16}
+                  breakpoints={{
+                    640: { slidesPerView: 2, spaceBetween: 16 },
+                    768: { slidesPerView: 4, spaceBetween: 16 },
+                    1024: { slidesPerView: 6, spaceBetween: 16 },
+                  }}
+                  loop={uniqueMovies.length > 1}
+                  autoplay={
+                    uniqueMovies.length > 1
+                      ? {
+                          delay: 3000,
+                          disableOnInteraction: false,
+                        }
+                      : false
+                  }
+                  watchOverflow
+                >
+                  {uniqueMovies.map((movie) => (
+                    <SwiperSlide key={`${category}-${movie.id}`} className="h-auto">
+                      <MediaCard
+                        movie={movie}
+                        mediaType={category}
+                        onPlay={onPlay}
+                        locale={locale}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              ) : (
+                <div className="-mx-2 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+                  {uniqueMovies.map((movie) => (
+                    <div
+                      key={`${category}-${movie.id}`}
+                      className="mb-8 min-w-0 px-2"
+                    >
+                      <MediaCard
+                        movie={movie}
+                        mediaType={category}
+                        onPlay={onPlay}
+                        locale={locale}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {showWatchMore && catalogQuery.hasNextPage && (
-            <div className="mt-10 flex justify-center">
+            <div className="mt-16 flex justify-center">
               <button
                 type="button"
-                className="btn-default btn-sm shadow-btn disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-default px-8 py-2.5 text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={catalogQuery.isFetchingNextPage}
                 onClick={() => catalogQuery.fetchNextPage()}
               >
