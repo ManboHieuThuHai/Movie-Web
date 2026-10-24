@@ -25,7 +25,6 @@ export default function MediaDetails({ media, mediaType, locale = "en" }: MediaD
     (video) =>
       video.site === "YouTube" &&
       Boolean(video.key),
-      // Xóa filter type để hiển thị TẤT CẢ videos (không chỉ Trailer/Teaser)
   );
   const cast = media.credits.cast.slice(0, 20).map((actor) => ({
     ...actor,

@@ -219,7 +219,6 @@ export function getMovieDetails(movieId: number | string, locale: Locale = "en")
   }, locale);
 }
 
-// Function mới: Lấy similar movies với nhiều pages
 export async function getMoreSimilarMovies(
   movieId: number | string, 
   page: number = 2,
